@@ -1,0 +1,42 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: cursive;
+}
+
+.container {
+
+}
+
+.pic {
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+}
+
+/* Navbar */
+
+nav {
+    display: flex;
+    justify-content: space-between;
+
+    background-color: black;
+    color: aliceblue;
+    padding: 0.5rem 1rem;
+}
+
+nav ul {
+    display: flex;
+    gap: 10px;
+}
+
+nav ul li {
+    list-style: none;
+    margin-left: 10px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: inherit;
+}
