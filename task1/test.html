@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lenis Test</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 200vh;
+            background: linear-gradient(45deg, #1a1a2e, #0f3460, #16213e);
+            color: white;
+            font-family: sans-serif;
+        }
+        
+        section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+        
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 1000;
+        }
+        
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            background: #ff6b6b;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button onclick="scrollToSection('#section1')">Section 1</button>
+        <button onclick="scrollToSection('#section2')">Section 2</button>
+        <button onclick="scrollToTop()">Top</button>
+        <button onclick="scrollToBottom()">Bottom</button>
+    </div>
+    
+    <section id="section1" style="background: #ff6b6b33;">
+        <h1>Section 1 🐱</h1>
+    </section>
+    
+    <section id="section2" style="background: #4ecdc433;">
+        <h1>Section 2 🎨</h1>
+    </section>
+    
+    <!-- USE THIS CDN - It works -->
+    <script src="https://unpkg.com/lenis@1.1.7/dist/lenis.min.js"></script>
+    
+    <script>
+        // Initialize Lenis
+        const lenis = new Lenis({
+            duration: 1.5,
+            easing: (t) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)), // Custom easing
+            smooth: true,
+            smoothTouch: true,
+            touchMultiplier: 1.5,
+        });
+        
+        // Make lenis global for button clicks
+        window.lenis = lenis;
+        
+        // Animation frame loop
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+        
+        // // Helper functions
+        // function scrollToSection(selector) {
+        //     lenis.scrollTo(selector, {
+        //         duration: 2,
+        //         easing: (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+        //     });
+        // }
+        
+        // function scrollToTop() {
+        //     lenis.scrollTo(0, { duration: 1 });
+        // }
+        
+        // function scrollToBottom() {
+        //     lenis.scrollTo('bottom', { duration: 2 });
+        // }
+        
+        // // Handle anchor clicks
+        // document.addEventListener('click', (e) => {
+        //     if(e.target.matches('a[href^="#"]')) {
+        //         e.preventDefault();
+        //         const href = e.target.getAttribute('href');
+        //         lenis.scrollTo(href);
+        //     }
+        // });
+        
+        // // Log for debugging
+        // lenis.on('scroll', (e) => {
+        //     console.log('Scroll:', Math.round(e.scroll), 'px');
+        // });
+        
+        // console.log('Lenis loaded successfully! Version:', lenis.version);
+    </script>
+</body>
+</html>

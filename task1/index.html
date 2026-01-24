@@ -56,44 +56,122 @@
         <ul>
             <li><a href="#hero">Home</a></li>
             <li><a href="#about">About</a></li>
-            <li><a href="#gallery">Galler</a></li>
+            <li><a href="#gallery">Gallery</a></li>
             <li><a href="#feedback">Feedback</a></li>
         </ul>
     </nav>
 
+
     <section id="hero">
-        <div class="overlay"></div>
+
+        <div class="hero-background"></div>
+
+        <div class="hero-overlay"></div>
+
         <div class="container">
-            <h1>Catallery</h1>
-            <hr>
-            <p>A exquisite art gallery with premium cat pictures</p>
+            <h1 class="hero-title">Catallery</h1>
+            <div class="decorative-line"></div>
+            <p class="hero-subtitle">An Exquisite Art Gallery of Premium Feline Portraits</p>
+            <a href="#gallery" class="cta-button">Explore Collection</a>
+        </div>
+
+        <div class="scroll-indicator"></div>
+    </section>
+
+    <!-- Add some content to make page scrollable -->
+    <!-- <div style="height: 100vh; display: flex; align-items: center; justify-content: center;">
+        <h1>Scroll Down ↓</h1>
+    </div> -->
+
+    <section id="qualities">
+        <div id="title-service-1">
+            <p>Elegance</p>
+        </div>
+        <div id="title-service-2">
+            <p>Playfulness</p>
+            <div class="bar"></div>
+            <p>Grace</p>
+        </div>
+        <div id="title-service-3">
+            <p>Curiosity</p>
+            <div class="bar"></div>
+            <p>Mystery</p>
+            <div class="bar"></div>
+            <p>Independence</p>
+        </div>
+        <div id="title-service-4">
+            <p>Comfort</p>
         </div>
     </section>
+
+    <!-- Add more content to scroll -->
+    <!-- <div style="height: 100vh;"></div> -->
+
 
     <section id="about">
-
-    </section>
-<!-- 
-    <section id="gallery">
-        
-        <h1>Cat Art Gallery</h1>
-        
-        <div class="gallery">
-            <img class="pic" src="images/cat1.jpeg" alt="">
-            <img class="pic" src="images/cat2.jpeg" alt="">
-            <img class="pic" src="images/cat3.jpeg" alt="">
-            <img class="pic" src="images/cat4.jpeg" alt="">
-            <img class="pic" src="images/cat5.jpeg" alt="">
-            <img class="pic" src="images/cat6.jpeg" alt="">
+        <div class="image-side">
+            <img src="images/cat1.jpeg" alt="About Catallery">
+            <div class="cat-paw"></div> <!-- Decorative element -->
+        </div>
+        <div class="text-side">
+            <h2>Welcome to Catallery</h2>
+            <p class="lead">A digital gallery dedicated to the art of cats.</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse nihil labore libero, culpa corporis cupiditate odio recusandae praesentium asperiores suscipit expedita magni incidunt.</p>
+            <p>We curate exceptional cat artworks from talented artists around the world.</p>
+            <a href="#gallery" class="cta-button">View Gallery →</a>
         </div>
     </section>
--->
 
-    <section id="feedback">
+    <section id="gallery">
+        
+        <div class="gallery-title">
+            <h1>Gallery</h1>
+            <p>Our featured products</p>
+        </div>
+        
+        <div class="all-images">
+
+        </div>
 
     </section>
-    
-</body>
-<script src="script.js" type="module"></script>
 
+    <section id="simple-roller">
+        <div class="simple-track" id="simpleTrack">
+            <span class="cat-word">CATALLERY</span>
+            <span class="cat-word">|</span>
+            <span class="cat-word">PURR-FECT ART</span>
+            <span class="cat-word">|</span>
+        </div>
+    </section>
+
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.7/dist/lenis.min.js"></script>
+ <script>
+        // Lenis Smooth Scroll
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            smooth: true,
+            smoothTouch: false,
+        });
+
+        // Animation loop
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // Connect with GSAP ScrollTrigger
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => {
+            lenis.raf(time * 1000);
+        });
+        gsap.ticker.lagSmoothing(0);
+    </script>
+    
+    <script src="script.js" type="module"></script>
 </html>
