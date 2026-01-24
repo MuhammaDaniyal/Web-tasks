@@ -1,42 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: cursive;
+    transition: 0.3s;
+    font-family: "Noto Sans", sans-serif;
 }
 
-.container {
-
-}
-
-.pic {
-    width: 250px;
-    height: 250px;
-    object-fit: cover;
+body {
+    background-color: rgba(229, 229, 224);
 }
 
 /* Navbar */
 
-nav {
-    display: flex;
-    justify-content: space-between;
+#navbar {
+    position: fixed;
+    right: -50%;
+
+    min-height: 100vh;
+    width: 50vw;
+    font-size: 3rem;
 
     background-color: black;
     color: aliceblue;
-    padding: 0.5rem 1rem;
+    padding: 5rem 1rem;
 }
 
-nav ul {
+#hamburger {
+    position: fixed;
+    top: 16px; 
+    right: 40px;
+    z-index: 50;
+    background-color: rgb(0, 0, 0);
+
     display: flex;
-    gap: 10px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px; 
+
+    width: 56px;
+    height: 56px;
+    border-radius: 9999px;
+
+    cursor: pointer;
+    transition: all 300ms;
+
+    @media (min-width: 768px) {
+        width: 80px; 
+        height: 80px;
+    }
 }
 
-nav ul li {
+#line1, #line2 {
+    display: block;
+    width: 32px; 
+    height: 2px; 
+    background-color: white;
+    border-radius: 9999px;
+    transform-origin: center;
+}
+
+#navbar ul li {
     list-style: none;
     margin-left: 10px;
 }
 
-nav ul li a {
+#navbar ul li a {
     text-decoration: none;
     color: inherit;
+}
+
+
+
+
+/* Hero */
+
+#hero {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url('images/hero1.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+
+
+.container {
+    text-align: center;
 }

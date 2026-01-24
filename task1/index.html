@@ -47,20 +47,37 @@
 
 <body>
 
-    <nav>
-        <span>Catallery</span>
+    <div id="hamburger">
+        <span id="line1"></span>
+        <span id="line2"></span>
+    </div>
 
+    <nav id="navbar">
         <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="feedback.html">Feedback</a></li>
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#gallery">Galler</a></li>
+            <li><a href="#feedback">Feedback</a></li>
         </ul>
     </nav>
 
-    <div class="container">
+    <section id="hero">
+        <div class="overlay"></div>
+        <div class="container">
+            <h1>Catallery</h1>
+            <hr>
+            <p>A exquisite art gallery with premium cat pictures</p>
+        </div>
+    </section>
 
+    <section id="about">
+
+    </section>
+<!-- 
+    <section id="gallery">
+        
         <h1>Cat Art Gallery</h1>
-
+        
         <div class="gallery">
             <img class="pic" src="images/cat1.jpeg" alt="">
             <img class="pic" src="images/cat2.jpeg" alt="">
@@ -69,8 +86,14 @@
             <img class="pic" src="images/cat5.jpeg" alt="">
             <img class="pic" src="images/cat6.jpeg" alt="">
         </div>
-    </div>
+    </section>
+-->
+
+    <section id="feedback">
+
+    </section>
     
 </body>
+<script src="script.js" type="module"></script>
 
 </html>
