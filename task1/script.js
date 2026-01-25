@@ -26,7 +26,7 @@ navLinks.forEach(link => {
 /////////////////////////////////////////////////////////////////////
 
 const images_div = document.querySelector(".all-images");
-const number = 6;
+const number = 9;
 
 // Sample descriptions for each image
 const descriptions = [
@@ -43,7 +43,7 @@ for(let i = 1; i <= number; i++) {
     const img = document.createElement('img');
     const description = document.createElement('span');
     
-    img.src = `images/cat${i}.jpeg`;
+    img.src = `images/c${i}.jpg`;
     img.alt = `Cat Art ${i}`;
     img.classList.add('gallery-image');
     
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const track = document.getElementById('simpleTrack');
     const items = track.innerHTML;
     
-    track.innerHTML += items + items;
+    track.innerHTML += items + items + items;
     
     const originalSpans = Array.from(track.children).slice(0, 4); 
     let patternWidth = 0;
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     gsap.to(track, {
         x: -patternWidth,
-        duration: 7,           // ← changed — more pleasant
+        duration: 7,
         ease: "none",
         repeat: -1,
         onRepeat: () => {
@@ -92,42 +92,39 @@ gsap.registerPlugin(ScrollTrigger);
 
 gsap.utils.toArray(['#title-service-1', '#title-service-2', '#title-service-3', '#title-service-4'])
     .forEach((el, i) => {
-        const xValues = [20, -30, 10, -10];
+        const xValues = [30, -40, 30, -40];
         
         gsap.fromTo(el, 
             {x: `${xValues[i]}%`},
             { 
-                x: 0,
+                x: `${-xValues[i]}%`,
 
                 scrollTrigger: {
-                    trigger: el,
-                    start: "top 80%",
-                    end: "top -10%",
-                    scrub: 0.5,
+                    trigger: "#qualities",
+                    start: "top 100%",
+                    end: "top -50%",
+                    scrub: 0.25,
                 }
             }
         );
 });
 
+/////////////////////////////////////////////////////////////////////
+////////////////////////// Smooth Scroll ////////////////////////////
+/////////////////////////////////////////////////////////////////////
 
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
 
-// Lenis
+        const targetId = this.getAttribute('href');
+        const target = document.querySelector(targetId);
 
-// // Initialize Lenis
-// const lenis = new Lenis({
-//     duration: 1.2,           // Animation duration
-//     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Smooth easing
-//     direction: 'vertical',   // vertical | horizontal
-//     gestureDirection: 'vertical', // vertical | horizontal | both
-//     smooth: true,            // Enable smooth scroll
-//     smoothTouch: false,      // Smooth scroll on touch devices
-//     touchMultiplier: 2,      // How much to scroll on touch
-//     infinite: false,         // Infinite scroll
-// });
-
-// // RAF loop for smooth animation
-// function raf(time) {
-//     lenis.raf(time);
-//     requestAnimationFrame(raf);
-// }
-// requestAnimationFrame(raf);
+        if (target) {
+            lenis.scrollTo(target, {
+                duration: 3,
+                easing: (t) => 1 - Math.pow(1 - t, 3)
+            });
+        }
+    });
+});
