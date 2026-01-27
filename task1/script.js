@@ -26,88 +26,21 @@ navLinks.forEach(link => {
 /////////////////////////////////////////////////////////////////////
 
 const images_div = document.querySelector(".all-images");
-const number = 9;
 
-// Sample descriptions for each image
-const descriptions = [
-    "Persian Cat - Fluffy and Majestic",
-    "Siamese Cat - Elegant Blue Eyes",
-    "Bengal Cat - Wild and Spotted",
-    "Ragdoll Cat - Gentle Giant",
-    "Sphynx Cat - Hairless Wonder", 
-    "Maine Coon - Forest King"
-];
-
-for(let i = 1; i <= number; i++) {
-    const image_div = document.createElement('div');
+for (let i = 1; i <= 9; i++) {
+    const div = document.createElement('div');
     const img = document.createElement('img');
-    const description = document.createElement('span');
-    
+
     img.src = `images/c${i}.jpg`;
     img.alt = `Cat Art ${i}`;
-    img.classList.add('gallery-image');
-    
-    // Add description text (using array or simple text)
-    description.textContent = descriptions[i-1] || `Cat Artwork ${i}`;
-    description.classList.add('image-description');
-    
-    image_div.classList.add('image-container');
-    image_div.append(img, description);
-    images_div.appendChild(image_div);
+    img.className = "gallery-image";
+
+    div.className = "image-container";
+    div.appendChild(img);
+
+    images_div.appendChild(div);
 }
 
-
-/////////////////////////////////////////////////////////////////////
-////////////////////////////// Slider //////////////////////////////
-/////////////////////////////////////////////////////////////////////
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    const track = document.getElementById('simpleTrack');
-    const items = track.innerHTML;
-    
-    track.innerHTML += items + items + items;
-    
-    const originalSpans = Array.from(track.children).slice(0, 4); 
-    let patternWidth = 0;
-    originalSpans.forEach(el => patternWidth += el.offsetWidth);
-
-    gsap.to(track, {
-        x: -patternWidth,
-        duration: 7,
-        ease: "none",
-        repeat: -1,
-        onRepeat: () => {
-            gsap.set(track, { x: 0 });
-        }
-    });
-});
-
-
-/////////////////////////////////////////////////////////////////////
-//////////////////////////// Qualities //////////////////////////////
-/////////////////////////////////////////////////////////////////////
-
-gsap.registerPlugin(ScrollTrigger);
-
-gsap.utils.toArray(['#title-service-1', '#title-service-2', '#title-service-3', '#title-service-4'])
-    .forEach((el, i) => {
-        const xValues = [30, -40, 30, -40];
-        
-        gsap.fromTo(el, 
-            {x: `${xValues[i]}%`},
-            { 
-                x: `${-xValues[i]}%`,
-
-                scrollTrigger: {
-                    trigger: "#qualities",
-                    start: "top 100%",
-                    end: "top -50%",
-                    scrub: 0.25,
-                }
-            }
-        );
-});
 
 /////////////////////////////////////////////////////////////////////
 ////////////////////////// Smooth Scroll ////////////////////////////

@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- SEO Title -->
-    <title>Art Gallery | Explore Contemporary & Classic Artwork</title>
+    <title>Catallery | Explore Contemporary & Classic Artwork</title>
 
     <!-- Meta Description -->
     <meta name="description" content="Discover a curated online art gallery featuring contemporary and classic artwork. Explore paintings, digital art, and creative collections from talented artists.">
@@ -36,10 +36,10 @@
     <meta name="twitter:image" content="https://www.yourgallerysite.com/preview.jpg">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="favicon.png">
-
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://www.yourgallerysite.com">
+     <!-- <link rel="icon" type="image/png" href="/images/favicon.png" sizes="32x32"> -->
+    <!-- <link rel="icon" type="image/png" href="images/favicon.png"> -->
+    <link rel="icon" type="image/png" href="/images/favicon32.png">
+        
 
     <link rel="stylesheet" href="style.css">
 
@@ -58,6 +58,7 @@
             <li><a href="#about">About</a></li>
             <li><a href="#gallery">Gallery</a></li>
             <li><a href="#feedback">Feedback</a></li>
+            <li><a href="signIn.html">Sign In</a></li>
         </ul>
     </nav>
 
@@ -70,34 +71,11 @@
 
         <div class="container">
             <h1 class="hero-title color-title">Catallery</h1>
-            <div class="decorative-line"></div>
             <p class="hero-subtitle">An Exquisite Art Gallery of Premium Feline Portraits</p>
             <a href="#gallery" class="cta-button">Explore Collection</a>
         </div>
 
         <div class="scroll-indicator"></div>
-    </section>
-
-
-    <section id="qualities">
-        <div id="title-service-1">
-            <p>Elegance</p>
-        </div>
-        <div id="title-service-2">
-            <p>Playfulness</p>
-            <div class="bar"></div>
-            <p>Grace</p>
-        </div>
-        <div id="title-service-3">
-            <p>Curiosity</p>
-            <div class="bar"></div>
-            <p>Mystery</p>
-            <div class="bar"></div>
-            <p>Independence</p>
-        </div>
-        <div id="title-service-4">
-            <p>Comfort</p>
-        </div>
     </section>
 
 
@@ -129,15 +107,6 @@
 
     </section>
 
-
-    <section id="simple-roller">
-        <div class="simple-track" id="simpleTrack">
-            <span class="cat-word">CATALLERY</span>
-            <span class="cat-word">|</span>
-            <span class="cat-word">PURR-FECT ART</span>
-            <span class="cat-word">|</span>
-        </div>
-    </section>
 
     <section id="feedback">
         <div class="feedback-container">
@@ -178,33 +147,5 @@
 
 
 </body>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-<script src="https://unpkg.com/lenis@1.1.7/dist/lenis.min.js"></script>
- <script>
-        // Lenis Smooth Scroll
-        const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smooth: true,
-            smoothTouch: false,
-        });
-
-        // Animation loop
-        function raf(time) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-        }
-        requestAnimationFrame(raf);
-
-        // Connect with GSAP ScrollTrigger
-        lenis.on('scroll', ScrollTrigger.update);
-        gsap.ticker.add((time) => {
-            lenis.raf(time * 1000);
-        });
-        gsap.ticker.lagSmoothing(0);
-    </script>
-    
     <script src="script.js" type="module"></script>
 </html>
