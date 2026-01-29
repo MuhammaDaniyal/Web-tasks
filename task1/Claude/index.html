@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Catallery - An exquisite digital art gallery featuring premium feline portraits from artists worldwide. Discover stunning cat art, commission custom pieces, and celebrate feline creativity.">
+    <meta name="keywords" content="cat art gallery, feline portraits, cat photography, premium cat art, custom cat portraits, cat artwork">
+    <meta name="author" content="Catallery">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Catallery - Premium Feline Art Gallery">
+    <meta property="og:description" content="An exquisite collection of premium feline portraits celebrating cats through art">
+    <meta property="og:type" content="website">
+    
+    <title>Catallery - Premium Feline Art Gallery</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Navigation -->
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+            <div class="logo" id="catallery-logo" tabindex="0" role="img" aria-label="Catallery logo">
+                <span class="logo-text">CATALLERY</span>
+            </div>
+            
+            <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">
+                <span class="menu-icon"></span>
+                <span class="menu-icon"></span>
+                <span class="menu-icon"></span>
+            </button>
+            
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#gallery" class="nav-link">Gallery</a></li>
+                <li><a href="#feedback" class="nav-link">Feedback</a></li>
+                <li><a href="#signin" class="nav-link nav-link-cta">Sign In</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main id="main-content">
+        <!-- Hero Section -->
+        <section id="home" class="hero-section" aria-labelledby="hero-title">
+            <div class="hero-content">
+                <div class="hero-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1529778873920-4da4926a72c2?w=800&q=80" 
+                         alt="Majestic tuxedo cat with green eyes perched on bamboo" 
+                         class="hero-cat-image"
+                         loading="eager">
+                </div>
+                <h1 id="hero-title" class="hero-title">CATALLERY</h1>
+                <p class="hero-subtitle">An Exquisite Art Gallery of Premium Feline Portraits</p>
+                <a href="#gallery" class="btn btn-primary">Explore Collection</a>
+            </div>
+            <div class="hero-background-pattern" aria-hidden="true"></div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="about-section" aria-labelledby="about-title">
+            <div class="about-container">
+                <div class="about-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?w=600&q=80" 
+                         alt="Elegant white cat with blue eyes surrounded by purple flowers" 
+                         class="about-image"
+                         loading="lazy">
+                </div>
+                <div class="about-content">
+                    <h2 id="about-title" class="about-heading">Welcome to Catallery</h2>
+                    <p class="about-tagline">A digital gallery dedicated to the art of cats.</p>
+                    <p class="about-description">
+                        We curate extraordinary feline portraits from talented artists around the globe, 
+                        celebrating the mystique, elegance, and playfulness of our beloved companions. 
+                        Each piece tells a unique story, capturing the timeless expressions and personalities 
+                        that make cats endlessly fascinating. From majestic poses to whimsical moments, 
+                        our collection honors the artistry of feline beauty in all its forms.
+                    </p>
+                    <a href="#gallery" class="btn btn-primary">View Gallery</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section id="gallery" class="gallery-section" aria-labelledby="gallery-title">
+            <div class="gallery-header">
+                <h2 id="gallery-title" class="gallery-title">GALLERY</h2>
+                <p class="gallery-subtitle">Our Featured Collection</p>
+            </div>
+            
+            <div class="gallery-grid" role="list">
+                <!-- Gallery items will be dynamically loaded -->
+                <article class="gallery-item" role="listitem">
+                    <div class="gallery-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1574158622682-e40e69881006?w=600&q=80" 
+                             alt="Majestic black cat in snow with piercing eyes" 
+                             class="gallery-image"
+                             loading="lazy">
+                        <div class="gallery-overlay">
+                            <button class="btn btn-secondary gallery-btn" data-image="1">View Details</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="gallery-item" role="listitem">
+                    <div class="gallery-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&q=80" 
+                             alt="Adorable kitten wearing a stylish hat" 
+                             class="gallery-image"
+                             loading="lazy">
+                        <div class="gallery-overlay">
+                            <button class="btn btn-secondary gallery-btn" data-image="2">View Details</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="gallery-item" role="listitem">
+                    <div class="gallery-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=600&q=80" 
+                             alt="Mysterious cat in hooded garment" 
+                             class="gallery-image"
+                             loading="lazy">
+                        <div class="gallery-overlay">
+                            <button class="btn btn-secondary gallery-btn" data-image="3">View Details</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="gallery-item" role="listitem">
+                    <div class="gallery-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1548681528-6a5c45b66b42?w=600&q=80" 
+                             alt="Elegant white cat with striking blue eyes" 
+                             class="gallery-image"
+                             loading="lazy">
+                        <div class="gallery-overlay">
+                            <button class="btn btn-secondary gallery-btn" data-image="4">View Details</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="gallery-item" role="listitem">
+                    <div class="gallery-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1583795128727-6ec3642408f8?w=600&q=80" 
+                             alt="Fluffy long-haired cat portrait" 
+                             class="gallery-image"
+                             loading="lazy">
+                        <div class="gallery-overlay">
+                            <button class="btn btn-secondary gallery-btn" data-image="5">View Details</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="gallery-item" role="listitem">
+                    <div class="gallery-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1573865526739-10c1d3a1f0cc?w=600&q=80" 
+                             alt="Sophisticated cat in pink scarf accessory" 
+                             class="gallery-image"
+                             loading="lazy">
+                        <div class="gallery-overlay">
+                            <button class="btn btn-secondary gallery-btn" data-image="6">View Details</button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <div class="gallery-load-more">
+                <button class="btn btn-outline" id="load-more-btn">Load More Masterpieces</button>
+            </div>
+        </section>
+
+        <!-- Feedback Section -->
+        <section id="feedback" class="feedback-section" aria-labelledby="feedback-title">
+            <div class="feedback-container">
+                <h2 id="feedback-title" class="feedback-title">STAY UPDATED</h2>
+                <p class="feedback-subtitle">Join our exclusive community for new collections and artistic insights</p>
+                
+                <form class="feedback-form" id="feedback-form" novalidate>
+                    <div class="form-group">
+                        <label for="feedback-email" class="sr-only">Email address</label>
+                        <input type="email" 
+                               id="feedback-email" 
+                               name="email" 
+                               class="form-input" 
+                               placeholder="Your email address"
+                               aria-required="true"
+                               required>
+                        <span class="form-error" id="email-error" role="alert"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="feedback-message" class="sr-only">Your message or commission request</label>
+                        <textarea id="feedback-message" 
+                                  name="message" 
+                                  class="form-textarea" 
+                                  placeholder="Share your thoughts or commission requests..."
+                                  rows="5"
+                                  aria-required="true"
+                                  required></textarea>
+                        <span class="form-error" id="message-error" role="alert"></span>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">SEND MESSAGE</button>
+                </form>
+                
+                <div class="form-success" id="feedback-success" role="status" aria-live="polite">
+                    <p>✓ Thank you! Your message has been received. We'll be in touch soon!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sign In Section -->
+        <section id="signin" class="signin-section" aria-labelledby="signin-title">
+            <div class="signin-container">
+                <div class="signin-box">
+                    <h2 id="signin-title" class="signin-title">Sign In</h2>
+                    
+                    <form class="signin-form" id="signin-form" novalidate>
+                        <div class="form-group">
+                            <label for="signin-email" class="form-label">Email</label>
+                            <input type="email" 
+                                   id="signin-email" 
+                                   name="email" 
+                                   class="form-input" 
+                                   placeholder="Enter your email"
+                                   aria-required="true"
+                                   required>
+                            <span class="form-error" id="signin-email-error" role="alert"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="signin-password" class="form-label">Password</label>
+                            <input type="password" 
+                                   id="signin-password" 
+                                   name="password" 
+                                   class="form-input" 
+                                   placeholder="Enter your password"
+                                   aria-required="true"
+                                   required>
+                            <span class="form-error" id="signin-password-error" role="alert"></span>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-full">SIGN IN</button>
+                    </form>
+                    
+                    <p class="signin-footer">
+                        Don't have an account? <a href="#signup" class="signin-link">Sign up</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="footer-container">
+            <div class="footer-logo">
+                <span class="logo-text">CATALLERY</span>
+            </div>
+            <nav class="footer-nav" aria-label="Footer navigation">
+                <ul class="footer-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#gallery">Gallery</a></li>
+                    <li><a href="#feedback">Feedback</a></li>
+                    <li><a href="#signin">Sign In</a></li>
+                </ul>
+            </nav>
+            <p class="footer-copyright">© 2026 Catallery. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Gallery Modal -->
+    <div class="modal" id="gallery-modal" role="dialog" aria-labelledby="modal-title" aria-modal="true" hidden>
+        <div class="modal-overlay" aria-hidden="true"></div>
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Close modal">&times;</button>
+            <img src="" alt="" class="modal-image" id="modal-image">
+            <div class="modal-info">
+                <h3 id="modal-title" class="modal-title">Artwork Title</h3>
+                <p class="modal-artist">Artist: <span id="modal-artist-name">Unknown</span></p>
+                <p class="modal-description" id="modal-description">A stunning feline portrait capturing unique character and grace.</p>
+                <div class="modal-actions">
+                    <button class="btn btn-primary">Add to Favorites</button>
+                    <button class="btn btn-outline">Commission Similar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paw Print Cursor Easter Egg -->
+    <div class="paw-cursor" id="paw-cursor" aria-hidden="true">🐾</div>
+
+    <script src="script.js"></script>
+</body>
+</html>
