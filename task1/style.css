@@ -7,6 +7,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: "Funnel Sans", sans-serif;
+    scroll-behavior: smooth;
 }
 
 :root {
@@ -451,26 +452,30 @@ section {
 
 /* Sign In */
 
-.signIn-form {
-    /* background-color: black; */
+#signIn-form {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
 }
 
-.signIn-form form {
-    border: 2px solid pink;
-    padding: 2rem;
-    border-radius: 10px;
-    background-color: #333;
-    color: var(--light-color);
+#signIn-form h2 {
+    color: var(--primary-color);
+    text-align: center;
 }
 
-.signIn-form form button {
-    /* border-radius: 10px; */
+#signIn-form form {
+    padding: 2rem;
+    border-radius: 10px;
+    background-color: var(--dark-color);
+    color: var(--light-color);
+    width: 30rem;
+}
+
+#signIn-form form button {
     padding: 10px;
     margin-bottom: 10px;
+    border: none;
 }
 
 .form-group {
@@ -478,17 +483,27 @@ section {
     padding: 0.5rem 0;
 }
 
+#signIn-form form a {
+    color: var(--primary-color);
+}
+
 .form-group input {
+    margin-top: 0.5rem;
     width: 100%;
     padding: 12px 14px;
     font-size: 16px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--primary-color);
     border-radius: 6px;
     outline: none;
-    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: var(--light-color);
 }
 
 .form-group input:focus {
-    border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+@media (max-width: 512px) {
+    #signIn-form form {
+        width: 90%;
+    }
 }

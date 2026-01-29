@@ -40,24 +40,3 @@ for (let i = 1; i <= 9; i++) {
 
     images_div.appendChild(div);
 }
-
-
-/////////////////////////////////////////////////////////////////////
-////////////////////////// Smooth Scroll ////////////////////////////
-/////////////////////////////////////////////////////////////////////
-
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-
-        const targetId = this.getAttribute('href');
-        const target = document.querySelector(targetId);
-
-        if (target) {
-            lenis.scrollTo(target, {
-                duration: 3,
-                easing: (t) => 1 - Math.pow(1 - t, 3)
-            });
-        }
-    });
-});
