@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Catallery — An exquisite digital gallery of premium feline portraits." />
+  <title>Catallery | Premium Feline Art Gallery</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ================= ROOT VARIABLES ================= */
+    :root {
+      --gold: #FFD700;
+      --black: #000000;
+      --teal: #008080;
+      --light: #F0F0F0;
+      --white: #FFFFFF;
+
+      --font-heading: 'Montserrat', sans-serif;
+      --font-body: 'Playfair Display', serif;
+    }
+
+    /* ================= RESET ================= */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--light);
+      color: var(--black);
+      line-height: 1.6;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ================= NAVBAR ================= */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--black);
+      color: var(--gold);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 1.2rem;
+    }
+
+    nav a {
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      color: var(--gold);
+    }
+
+    /* ================= HERO ================= */
+    .hero {
+      background: var(--teal);
+      color: var(--white);
+      text-align: center;
+      padding: 4rem 1.5rem;
+    }
+
+    .hero img {
+      width: 280px;
+      border-radius: 50%;
+      margin: 0 auto 1.5rem;
+      transition: transform 0.4s ease;
+    }
+
+    .hero img:hover {
+      transform: scale(1.05);
+    }
+
+    .hero h1 {
+      font-family: var(--font-heading);
+      color: var(--gold);
+      letter-spacing: 0.3em;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero p {
+      max-width: 600px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .btn {
+      background: var(--gold);
+      color: var(--black);
+      padding: 0.7rem 1.5rem;
+      border-radius: 30px;
+      font-family: var(--font-heading);
+      font-size: 0.9rem;
+      display: inline-block;
+    }
+
+    /* ================= ABOUT ================= */
+    .about {
+      background: var(--black);
+      color: var(--white);
+      padding: 4rem 1.5rem;
+      display: grid;
+      gap: 2rem;
+    }
+
+    .about img {
+      border-radius: 50%;
+      max-width: 300px;
+    }
+
+    .about h2 {
+      font-family: var(--font-heading);
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+
+    /* ================= GALLERY ================= */
+    .gallery {
+      padding: 4rem 1.5rem;
+      text-align: center;
+    }
+
+    .gallery h2 {
+      font-family: var(--font-heading);
+      color: var(--black);
+      letter-spacing: 0.2em;
+    }
+
+    .gallery-grid {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .gallery figure {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+    }
+
+    .gallery img {
+      transition: transform 0.4s ease;
+    }
+
+    .gallery figure:hover img {
+      transform: scale(1.1);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .gallery figure:hover .overlay {
+      opacity: 1;
+    }
+
+    /* ================= FEEDBACK ================= */
+    .feedback {
+      background: var(--black);
+      color: var(--white);
+      padding: 4rem 1.5rem;
+      text-align: center;
+    }
+
+    .feedback h2 {
+      font-family: var(--font-heading);
+      color: var(--gold);
+    }
+
+    .feedback form {
+      max-width: 500px;
+      margin: 2rem auto 0;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .feedback input,
+    .feedback textarea {
+      padding: 0.7rem;
+      border-radius: 6px;
+      border: none;
+    }
+
+    /* ================= AUTH ================= */
+    .auth {
+      background: var(--light);
+      padding: 4rem 1.5rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .auth-box {
+      background: var(--black);
+      color: var(--white);
+      padding: 2rem;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .auth-box h2 {
+      color: var(--gold);
+      font-family: var(--font-heading);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .auth-box input {
+      width: 100%;
+      padding: 0.6rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      border: none;
+    }
+
+    /* ================= FOOTER ================= */
+    footer {
+      background: var(--black);
+      color: var(--white);
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.8rem;
+    }
+
+    /* ================= EASTER EGG ================= */
+    .paw-cursor {
+      cursor: url('https://cur.cursors-4u.net/animals/ani-12/ani1135.cur'), auto;
+    }
+
+    /* ================= RESPONSIVE ================= */
+    @media (min-width: 768px) {
+      .about {
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo" id="logo">CATALLERY</div>
+  <nav>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#feedback">Feedback</a></li>
+      <li><a href="#auth">Sign In</a></li>
+    </ul>
+  </nav>
+</header>
+
+<section id="home" class="hero">
+  <img src="https://source.unsplash.com/featured/?tuxedo-cat" alt="Premium tuxedo cat portrait">
+  <h1>CATALLERY</h1>
+  <p>An Exquisite Art Gallery of Premium Feline Portraits</p>
+  <a href="#gallery" class="btn">Explore Collection</a>
+</section>
+
+<section id="about" class="about">
+  <img src="https://source.unsplash.com/featured/?white-cat" alt="Fluffy white cat with blue eyes">
+  <div>
+    <h2>Welcome to Catallery</h2>
+    <p>
+      Catallery is a premium feline art gallery dedicated to curating elegant,
+      expressive, and timeless cat portraits from artists around the world.
+    </p>
+    <a href="#gallery" class="btn">View Gallery</a>
+  </div>
+</section>
+
+<section id="gallery" class="gallery">
+  <h2>GALLERY</h2>
+  <p>Our Featured Products</p>
+
+  <div class="gallery-grid">
+    <figure>
+      <img src="https://source.unsplash.com/featured/?black-cat" alt="Black cat portrait">
+      <div class="overlay"><span class="btn">View Details</span></div>
+    </figure>
+    <figure>
+      <img src="https://source.unsplash.com/featured/?kitten" alt="Cute kitten">
+      <div class="overlay"><span class="btn">View Details</span></div>
+    </figure>
+    <figure>
+      <img src="https://source.unsplash.com/featured/?cat-costume" alt="Cat in costume">
+      <div class="overlay"><span class="btn">View Details</span></div>
+    </figure>
+  </div>
+</section>
+
+<section id="feedback" class="feedback">
+  <h2>STAY UPDATED</h2>
+  <p>Join our exclusive community for new collections and artistic insights</p>
+
+  <form id="feedbackForm">
+    <input type="email" placeholder="Your email address" required>
+    <textarea placeholder="Share your thoughts or commission requests..."></textarea>
+    <button class="btn" type="submit">SEND MESSAGE</button>
+  </form>
+</section>
+
+<section id="auth" class="auth">
+  <form class="auth-box">
+    <h2>Sign In</h2>
+    <input type="email" placeholder="Enter your email" required>
+    <input type="password" placeholder="Enter your password" required>
+    <button class="btn" type="submit">SIGN IN</button>
+  </form>
+</section>
+
+<footer>
+  © 2026 Catallery. All rights reserved.
+</footer>
+
+<audio id="purrSound" src="https://assets.mixkit.co/sfx/preview/mixkit-cat-purr-1261.mp3"></audio>
+
+<script>
+  /* ================= EASTER EGG ================= */
+  const logo = document.getElementById('logo');
+  const purr = document.getElementById('purrSound');
+  let timer;
+
+  logo.addEventListener('mouseenter', () => {
+    timer = setTimeout(() => {
+      purr.volume = 0.2;
+      purr.play();
+      document.body.classList.add('paw-cursor');
+    }, 2000);
+  });
+
+  logo.addEventListener('mouseleave', () => {
+    clearTimeout(timer);
+    document.body.classList.remove('paw-cursor');
+  });
+
+  /* ================= FEEDBACK FORM ================= */
+  document.getElementById('feedbackForm').addEventListener('submit', e => {
+    e.preventDefault();
+    alert('Thank you for joining Catallery 🐾');
+  });
+</script>
+
+</body>
+</html>
