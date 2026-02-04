@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simple Archery (Drag to Aim + Shoot)</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #0f172a;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      user-select: none;
+    }
+
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at 40% 40%, #1e293b, #0b1222 70%);
+      cursor: crosshair;
+    }
+
+    .hint {
+      position: fixed;
+      left: 16px;
+      top: 16px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.35);
+      color: #e2e8f0;
+      font-size: 14px;
+      line-height: 1.25;
+      backdrop-filter: blur(6px);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div class="hint">
+    <b>Drag</b> to pull + aim (up/down).<br/>
+    <b>Release</b> to shoot (linear).
+  </div>
+
+<script>
+(() => {
+  // ===== Canvas setup (HiDPI safe) =====
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d");
+
+  function resize() {
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width = Math.floor(window.innerWidth * dpr);
+    canvas.height = Math.floor(window.innerHeight * dpr);
+    canvas.style.width = window.innerWidth + "px";
+    canvas.style.height = window.innerHeight + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // draw in CSS pixels
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  // ===== Game objects =====
+  const bow = {
+    x: 110,
+    y: () => window.innerHeight * 0.55,
+    radius: 70
+  };
+
+  const arrows = [];
+
+  // Drag state
+  let isDragging = false;
+  let dragStart = { x: 0, y: 0 };
+  let dragNow = { x: 0, y: 0 };
+
+  // Aiming values
+  let aimAngle = 0;     // radians
+  let pullAmount = 0;   // 0..1
+
+  // Settings
+  const MAX_PULL_PX = 140;     // how far you can pull
+  const MIN_SPEED = 500;       // px/sec
+  const MAX_SPEED = 1400;      // px/sec
+
+  // ===== Input helpers =====
+  function getMousePos(e) {
+    return { x: e.clientX, y: e.clientY };
+  }
+
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+  // ===== Shooting =====
+  function shootArrow() {
+    const by = bow.y();
+
+    // Arrow spawn point (near bow center)
+    const spawnX = bow.x + 30;
+    const spawnY = by;
+
+    // Speed from pull
+    const speed = MIN_SPEED + pullAmount * (MAX_SPEED - MIN_SPEED);
+
+    // Velocity
+    const vx = Math.cos(aimAngle) * speed;
+    const vy = Math.sin(aimAngle) * speed;
+
+    arrows.push({
+      x: spawnX,
+      y: spawnY,
+      vx, vy,
+      angle: aimAngle,
+      alive: true
+    });
+  }
+
+  // ===== Mouse events =====
+  canvas.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    dragStart = getMousePos(e);
+    dragNow = { ...dragStart };
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+    dragNow = getMousePos(e);
+
+    // Pull vector = from current mouse to start (like pulling back)
+    const dx = dragStart.x - dragNow.x;
+    const dy = dragStart.y - dragNow.y;
+
+    const dist = Math.hypot(dx, dy);
+
+    // Pull amount 0..1
+    pullAmount = clamp(dist / MAX_PULL_PX, 0, 1);
+
+    // Aim angle based on direction you pull (up/down)
+    // We want arrow to go right, but up/down depends on drag dy.
+    // Use a limited angle range for nicer control.
+    const rawAngle = Math.atan2(dy, Math.max(1, dx)); // prevents weird flips
+    const MAX_ANGLE = Math.PI * 0.35; // ~63 degrees up/down
+
+    aimAngle = clamp(rawAngle, -MAX_ANGLE, MAX_ANGLE);
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (!isDragging) return;
+
+    // Only shoot if pulled enough
+    if (pullAmount > 0.05) shootArrow();
+
+    isDragging = false;
+    pullAmount = 0;
+  });
+
+  // Touch support (optional but nice)
+  canvas.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    const t = e.changedTouches[0];
+    isDragging = true;
+    dragStart = { x: t.clientX, y: t.clientY };
+    dragNow = { ...dragStart };
+  }, { passive: false });
+
+  window.addEventListener("touchmove", (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const t = e.changedTouches[0];
+    dragNow = { x: t.clientX, y: t.clientY };
+
+    const dx = dragStart.x - dragNow.x;
+    const dy = dragStart.y - dragNow.y;
+
+    const dist = Math.hypot(dx, dy);
+    pullAmount = clamp(dist / MAX_PULL_PX, 0, 1);
+
+    const rawAngle = Math.atan2(dy, Math.max(1, dx));
+    const MAX_ANGLE = Math.PI * 0.35;
+    aimAngle = clamp(rawAngle, -MAX_ANGLE, MAX_ANGLE);
+  }, { passive: false });
+
+  window.addEventListener("touchend", (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+
+    if (pullAmount > 0.05) shootArrow();
+
+    isDragging = false;
+    pullAmount = 0;
+  }, { passive: false });
+
+  // ===== Rendering helpers =====
+  function drawBow() {
+    const by = bow.y();
+
+    // Bow body
+    ctx.save();
+    ctx.translate(bow.x, by);
+
+    // Outer bow arc
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = "#c084fc";
+    ctx.beginPath();
+    ctx.arc(0, 0, bow.radius, -Math.PI * 0.45, Math.PI * 0.45);
+    ctx.stroke();
+
+    // Inner highlight
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "rgba(255,255,255,0.25)";
+    ctx.beginPath();
+    ctx.arc(0, 0, bow.radius - 7, -Math.PI * 0.45, Math.PI * 0.45);
+    ctx.stroke();
+
+    // Bow string endpoints
+    const a1 = -Math.PI * 0.45;
+    const a2 =  Math.PI * 0.45;
+    const p1 = { x: Math.cos(a1) * bow.radius, y: Math.sin(a1) * bow.radius };
+    const p2 = { x: Math.cos(a2) * bow.radius, y: Math.sin(a2) * bow.radius };
+
+    // String pulled point
+    // Pull point moves left based on pullAmount and slightly up/down with aimAngle
+    const pullX = -pullAmount * 55;
+    const pullY = Math.sin(aimAngle) * pullAmount * 20;
+
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#e2e8f0";
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(pullX, pullY);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.stroke();
+
+    // Nock point indicator
+    ctx.fillStyle = "#38bdf8";
+    ctx.beginPath();
+    ctx.arc(pullX, pullY, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawAimGuide() {
+    if (!isDragging) return;
+
+    const by = bow.y();
+
+    // Start from bow center, go in aim direction
+    const x0 = bow.x + 30;
+    const y0 = by;
+
+    const len = 260;
+    const x1 = x0 + Math.cos(aimAngle) * len;
+    const y1 = y0 + Math.sin(aimAngle) * len;
+
+    ctx.save();
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8, 8]);
+    ctx.strokeStyle = "rgba(56,189,248,0.65)";
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    // Pull strength bar
+    ctx.save();
+    const w = 160, h = 10;
+    const px = 16, py = window.innerHeight - 26;
+    ctx.fillStyle = "rgba(255,255,255,0.12)";
+    ctx.fillRect(px, py, w, h);
+    ctx.fillStyle = "rgba(56,189,248,0.85)";
+    ctx.fillRect(px, py, w * pullAmount, h);
+    ctx.restore();
+  }
+
+  function drawArrow(a) {
+    ctx.save();
+    ctx.translate(a.x, a.y);
+    ctx.rotate(a.angle);
+
+    // Shaft
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "#f1f5f9";
+    ctx.beginPath();
+    ctx.moveTo(-22, 0);
+    ctx.lineTo(22, 0);
+    ctx.stroke();
+
+    // Tip
+    ctx.fillStyle = "#fbbf24";
+    ctx.beginPath();
+    ctx.moveTo(24, 0);
+    ctx.lineTo(16, -5);
+    ctx.lineTo(16, 5);
+    ctx.closePath();
+    ctx.fill();
+
+    // Fletching
+    ctx.fillStyle = "#fb7185";
+    ctx.beginPath();
+    ctx.moveTo(-22, 0);
+    ctx.lineTo(-30, -6);
+    ctx.lineTo(-26, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(-22, 0);
+    ctx.lineTo(-30, 6);
+    ctx.lineTo(-26, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  // ===== Update loop =====
+  let last = performance.now();
+
+  function update(t) {
+    const dt = Math.min(0.033, (t - last) / 1000);
+    last = t;
+
+    // Move arrows (linear, no gravity)
+    for (const a of arrows) {
+      if (!a.alive) continue;
+      a.x += a.vx * dt;
+      a.y += a.vy * dt;
+
+      // Keep arrow angle aligned with velocity
+      a.angle = Math.atan2(a.vy, a.vx);
+
+      // Kill if out of screen
+      if (a.x > window.innerWidth + 100 || a.y < -100 || a.y > window.innerHeight + 100) {
+        a.alive = false;
+      }
+    }
+
+    // Clear dead arrows sometimes
+    for (let i = arrows.length - 1; i >= 0; i--) {
+      if (!arrows[i].alive) arrows.splice(i, 1);
+    }
+
+    // Draw
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+    // Ground line
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,0.06)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, window.innerHeight * 0.85);
+    ctx.lineTo(window.innerWidth, window.innerHeight * 0.85);
+    ctx.stroke();
+    ctx.restore();
+
+    drawAimGuide();
+    drawBow();
+
+    // Draw arrows
+    for (const a of arrows) drawArrow(a);
+
+    requestAnimationFrame(update);
+  }
+
+  requestAnimationFrame(update);
+})();
+</script>
+</body>
+</html>
