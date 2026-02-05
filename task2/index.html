@@ -1,74 +1,433 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Archery</title>
   <style>
 
-    body { margin: 0; background: #a97f7f; }
-    #bow { position: absolute; left: 100px; top: 50%; transform-origin: center center; user-select: none;}
-    #test { background-color: orange; position: absolute; top: 0; left: 10px; }
-    
-    </style>
+    html, body {
+      overflow: hidden; /* Kills scrollbars */
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: pink;
+    }
+
+    canvas {
+      display: block; /* Removes extra space under canvas */
+    }
+
+    #bow {
+      position: absolute;
+      left: 100px;
+      top: 50%;
+      transform-origin: center center;
+      pointer-events: none; 
+      -webkit-user-drag: none;
+    }
+
+    #test {
+      background-color: orange;
+      position: absolute;
+      top: 0;
+      left: 10px;
+    }
+  </style>
 </head>
+
 <body>
-  <img id="bow" src="assets/bow.png">
-  
+  <!-- <div id="bow"></div> -->
+  <img id="bow" src="assets/bow3.png">
+
   <canvas id="canvas"></canvas>
 
   <div id="test">Nigga</div>
 
-  <script>
+</body>
 
-    const test_div = document.getElementById("test");
+<script>
 
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    const bow = document.getElementById("bow");
-    let dragEnabled = false;
+  // Variables 
 
+  let arrows = []
+
+  const test_div = document.getElementById("test");
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  const bow = document.getElementById("bow");
+
+  let dragEnabled = false;
+  const bowCenterX = bow.offsetLeft + (bow.offsetWidth / 2);
+  const bowCenterY = bow.offsetTop + (bow.offsetHeight / 2);
+
+  let stringPulledX = 0;  // How far string is pulled horizontally
+  const MAX_PULL = 80;    // Max string stretch in pixels
+
+  const arrowImg = new Image();
+  arrowImg.src = "assets/arrow3.png";
+  arrowImg.width = 100;
+
+  let angle = 0;
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  // Classes
+/* 
+
+  class Target {
+    constructor()
+    {
+      this.img = new Image();
+      this.img.src = "assets/target.png";
+      this.speed = 5;
+      this.x = canvas.width - this.img.naturalWidth - 10;
+      this.y = 400;
+      this.direction = 1;
+      this.endings = 50
+
+      const width = this.img.naturalWidth;
+      const height = this.img.naturalHeight;
+    }
+
+    update(ctx)
+    {
+      if((this.y < this.endings) || (this.y > canvas.height - this.img.naturalHeight - this.endings))
+        this.direction *= -1;
+
+      this.draw(ctx);
+    }
+
+    draw(ctx) {
+      if (this.img.complete && this.img.naturalWidth > 0) {
+        
+        ctx.drawImage(this.img, 
+          this.x - this.width/2,  // Center X
+          this.y - this.height/2, // Center Y
+          this.width, 
+          this.height
+        );
+      }
+    }
+  }
+
+  */
+
+  class Target {
+  constructor() {
+    this.img = new Image();
+    this.img.src = "assets/target3.png";
+
+    this.speed = 5;
+    this.x = canvas.width - 200;
+    this.y = 400;
+    this.direction = 1;
+    this.endings = 50;
+
+    // Default size until image loads
+    this.width = 120;
+    this.height = 120;
+
+    
+    // When image loads, set correct size
+    this.img.onload = () => {
+      this.width = this.img.naturalWidth * 2;
+      this.height = this.img.naturalHeight * 2;
+      this.centerX = this.width / 2;
+      this.centerY = this.height / 2;
+    };
+  }
+
+  update(ctx) {
+    // If you want movement later, keep this logic
+    if ((this.y < this.endings) || (this.y > canvas.height - this.height/2 - this.endings)) {
+      this.direction *= -1;
+    }
+
+    this.y += this.speed * this.direction;
+
+    this.draw(ctx);
+  }
+
+  draw(ctx) {
+    if (!this.img.complete || this.img.naturalWidth === 0) return;
+
+    ctx.drawImage(
+      this.img,
+      this.x - this.width / 2,
+      this.y - this.height / 2,
+      this.width,
+      this.height
+    );
+  }
+}
+
+  class Arrow {
+    constructor(angle, factor, target) {
+      this.x = bowCenterX;
+      this.y = bowCenterY;
+      this.angle = angle;
+      this.speed = 0.25 * factor;
+      this.img = arrowImg; // Store reference
+      this.stuck = false;
+      this.target = target;
+
+      
+      this.width = this.img.naturalWidth * 0.4;
+      this.height = this.img.naturalHeight * 0.4;
+
+      this.hitOffsetX = this.width;
+      this.hitOffsetY = this.height;
+
+    // Get actual CANVAS pixel coordinates (not DOM)
+      const targetWidth = target.img.naturalWidth * 2; // ×2 because you're scaling it
+      const targetHeight = target.img.naturalHeight * 2;
+      
+      const targetCanvasLeft = target.x - targetWidth/2;
+      const targetCanvasRight = target.x + targetWidth/2;
+      const targetCanvasTop = target.y - targetHeight/2;
+      const targetCanvasBottom = target.y + targetHeight/2;
+      
+      console.log("Target canvas pixel boundaries:");
+      console.log("Left:", targetCanvasLeft, "Right:", targetCanvasRight, "Top:", targetCanvasTop, "Bottom:", targetCanvasBottom, "Center:", target.x, target.y);
+    }
+
+    update(ctx) {
+
+      if(this.stuck)
+      {
+        this.x = this.target.x - this.hitOffsetX;
+        this.y = this.target.y + this.hitOffsetY/2;
+      }
+      else 
+      {
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+      }
+
+      this.draw(ctx)
+    }
+
+    draw(ctx) {
+      if (this.img.complete) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.drawImage(this.img, -15, -5, this.width, this.height); // Adjust size
+        ctx.restore();
+      } else {
+        // Fallback circle
+        ctx.fillStyle = "red";
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  function drawTargetDebug(target) {
+    if (!target.width || !target.height) return;
+
+    // Bounding box
+    ctx.save();
+    ctx.strokeStyle = "lime";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(
+      target.x - target.width / 2,
+      target.y - target.height / 2,
+      target.width,
+      target.height
+    );
+
+    // Center point
+    ctx.fillStyle = "red";
+    ctx.beginPath();
+    ctx.arc(target.x, target.y, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawArrowDebug(arrow) {
+  ctx.save();
+
+  // Center point
+  ctx.fillStyle = "cyan";
+  ctx.beginPath();
+  ctx.arc(arrow.x, arrow.y, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Collision circle (same radius you use in collision)
+  const arrowRadius = 5;
+  ctx.strokeStyle = "cyan";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(arrow.x, arrow.y, arrowRadius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Direction line (shows where arrow is facing)
+  ctx.strokeStyle = "yellow";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(arrow.x, arrow.y);
+  ctx.lineTo(
+    arrow.x + Math.cos(arrow.angle) * 40,
+    arrow.y + Math.sin(arrow.angle) * 40
+  );
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+
+  const target = new Target()
+
+  // Functions
+  
+  function checkCollision(target, arrow) {
+    if(arrow.stuck) return true;
+    // Simple circle collision
+    const dx = arrow.x - target.x;
+    const dy = arrow.y - target.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    // Target radius + arrow radius
+    const targetRadius = target.width / 2 || 50;
+    const arrowRadius = 5;
+    
+    return distance < (targetRadius + arrowRadius);
+  }
+
+  function gameloop() {
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    target.update(ctx);
+    drawString();
+    // drawTargetDebug(target);
+
+    test_div.innerText = `Nope`;
+    
+    arrows = arrows.filter(arrow => {
+      test_div.innerText = `Shit going on`;
+      
+      if(!arrow.stuck && checkCollision(target, arrow))
+      {
+        arrow.stuck = true;
+
+        arrow.x = target.x;
+        arrow.y = target.y;
+
+        console.log("Collision", arrow.x, arrow.y, target.x, target.y)
+      } 
+      
+      // drawArrowDebug(arrow)
+      const keep = !(arrow.x > canvas.width || arrow.y > canvas.height || arrow.x < 0 || arrow.y < 0);
+      if (keep) arrow.update(ctx);
+      return keep;
+    });
+
+    requestAnimationFrame(gameloop);
+  }
+
+  function handleResize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    // bowY = window.innerHeight * 0.5;
+  }
+
+  function handleMousedown(e) {
+    dragEnabled = true;
+
+    const dx = e.clientX - bowCenterX;
+    const dy = e.clientY - bowCenterY;
+    angle = Math.atan2(-dy, -dx) - 0.1;
+    bow.style.transform = `rotate(${angle}rad)`;
     
-    let angle = 0;
-    let bowY = window.innerHeight * 0.5;
+    // test_div.innerText = `${dragEnabled}, ${angle}, ${bowCenterY}`;
+  }
 
+  function handleMouseup(e) {
+    if (!dragEnabled) return;
 
-    window.addEventListener("mousedown", (e) => {
-      dragEnabled = true;
-      test_div.innerText = `${dragEnabled}, ${angle}`;
-    })
-
-    window.addEventListener("mouseup", (e) => {
-      dragEnabled = false;
-      angle = 0
-      test_div.innerText = `${dragEnabled}, ${angle}`;
-      bow.style.transform = `rotate(${angle}rad)`;
-    })
+    dragEnabled = false;
+    const dx = e.clientX - bowCenterX;
+    const dy = e.clientY - bowCenterY;
     
-    // Rotate bow based on mouse position
-    window.addEventListener("mousemove", (e) => {
-      // Calculate angle between bow and mouse
-      const dx = e.clientX - 140; // 140 = bow center x (100 + 40)
-      const dy = e.clientY - bowY;
-      test_div.innerText = `${dragEnabled}, ${angle}`;
-      
-    if(dragEnabled && dx < 0)  // Only when mouse is BEHIND bow (left side)
-    {
-      // Flip the angle to aim AWAY from mouse
-      angle = Math.atan2(-dy, -dx) - Math.PI/2;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const pullPower = Math.min(distance / 200, 1);
+
+    arrows.push(new Arrow(angle, distance, target)); 
+
+    stringPulledX = 0;
+
+    // test_div.innerText = `${dragEnabled}, ${angle}`;
+    bow.style.transform = `rotate(${angle}rad)`;
+  }
+
+  function handleMousemove(e) {
+    const dx = e.clientX - bowCenterX;
+    const dy = e.clientY - bowCenterY;
+    
+    // Calculate distance from bow center
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const MIN_DISTANCE = 30;
+
+    if (dragEnabled && dx < 0 && distance > MIN_DISTANCE) {
+      angle = Math.atan2(-dy, -dx) - 0.1;
+
+      // Calculate string pull based on drag distance
+      const pullPercent = Math.min(distance / 200, 1); // 0 to 1
+      stringPulledX = -pullPercent * MAX_PULL; // Pull backward
+
+      // test_div.innerText = `${angle}rad, dist: ${distance.toFixed(1)}`;
       bow.style.transform = `rotate(${angle}rad)`;
     }
-      
-    });    
+  }
+
+  function drawString() {
+    const bowHeight = bow.offsetHeight || 80;
     
-    // Handle resize
-    window.addEventListener("resize", () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
+    // Top and bottom string points (based on bow height)
+    const stringTopY = -bowHeight * 0.33;
+    const stringBottomY = bowHeight * 0.33;
+    const stringX = -bowHeight * 0.07; // String start position
     
-  </script>
-</body>
+    ctx.save();
+    ctx.translate(bowCenterX, bowCenterY);
+    ctx.rotate(angle);
+    
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    
+    // Draw string with pull effect
+    ctx.beginPath();
+    ctx.moveTo(stringX, stringTopY);
+    ctx.lineTo(stringX + stringPulledX, 0);
+    ctx.lineTo(stringX, stringBottomY);
+    ctx.stroke();
+    
+    ctx.restore();
+  }
+
+  // ========== INITIALIZE ==========
+
+  // Event Listeners
+  window.addEventListener("resize", handleResize);
+  window.addEventListener("mousedown", handleMousedown);
+  window.addEventListener("mouseup", handleMouseup);
+  window.addEventListener("mousemove", handleMousemove);
+  
+  window.addEventListener("click", (e) => {
+    console.log("X:", e.clientX, "Y:", e.clientY);
+  })
+
+  gameloop();
+
+</script>
+
 </html>
