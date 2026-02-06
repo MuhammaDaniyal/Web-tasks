@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archery Target Shooting Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 10px;
+            color: white;
+        }
+
+        .hud-item {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .arena {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(180deg, #87CEEB 0%, #98D8C8 100%);
+            border: 4px solid #2c3e50;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .bow {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 100px;
+            background: linear-gradient(90deg, #8B4513 0%, #A0522D 100%);
+            border-radius: 20px 5px 5px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bow::before {
+            content: '';
+            position: absolute;
+            width: 3px;
+            height: 90px;
+            background: #333;
+            right: 5px;
+            border-radius: 2px;
+        }
+
+        .arrow {
+            position: absolute;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #8B4513 0%, #FFD700 50%, #8B4513 100%);
+            left: 60px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+            transition: none;
+        }
+
+        .arrow::before {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid #FFD700;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+        }
+
+        .arrow::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-right: 8px solid #8B4513;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+
+        .target {
+            position: absolute;
+            right: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .target-ring-outer {
+            width: 100%;
+            height: 100%;
+            background: #e74c3c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .target-ring-middle {
+            width: 66%;
+            height: 66%;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .target-ring-inner {
+            width: 50%;
+            height: 50%;
+            background: #e74c3c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .target-bullseye {
+            width: 40%;
+            height: 40%;
+            background: #f39c12;
+            border-radius: 50%;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-start:active {
+            transform: translateY(0);
+        }
+
+        .btn-shoot {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-shoot:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-shoot:active {
+            transform: translateY(0);
+        }
+
+        .btn-shoot:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10;
+            border-radius: 10px;
+        }
+
+        .overlay.active {
+            display: flex;
+        }
+
+        .overlay-content {
+            text-align: center;
+            color: white;
+        }
+
+        .overlay-title {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .overlay-score {
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 600px) {
+            .arena {
+                height: 300px;
+            }
+
+            .bow {
+                width: 30px;
+                height: 80px;
+            }
+
+            .arrow {
+                width: 50px;
+            }
+
+            .target {
+                width: 80px;
+                height: 80px;
+            }
+
+            .hud-item {
+                font-size: 14px;
+            }
+
+            .overlay-title {
+                font-size: 32px;
+            }
+
+            .overlay-score {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="hud">
+            <div class="hud-item">Score: <span id="score-display">0</span></div>
+            <div class="hud-item">Time: <span id="time-display">60</span>s</div>
+        </div>
+
+        <div class="arena" id="arena">
+            <div class="bow"></div>
+            <div class="arrow" id="arrow">
+            </div>
+            <div class="target" id="target">
+                <div class="target-ring-outer">
+                    <div class="target-ring-middle">
+                        <div class="target-ring-inner">
+                            <div class="target-bullseye"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overlay" id="game-over-overlay">
+                <div class="overlay-content">
+                    <div class="overlay-title">Game Over!</div>
+                    <div class="overlay-score">Final Score: <span id="final-score">0</span></div>
+                    <button class="btn btn-start" id="restart-btn">Play Again</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-start" id="start-btn">Start Game</button>
+            <button class="btn btn-shoot" id="shoot-btn" disabled>Shoot (Space)</button>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            INITIAL_TIME: 60,
+            INITIAL_TARGET_SPEED: 2,
+            INITIAL_TARGET_SIZE: 100,
+            ARROW_SPEED: 8,
+            TARGET_SPEED_INCREMENT: 0.3,
+            TARGET_SIZE_DECREMENT: 2,
+            MIN_TARGET_SIZE: 40,
+            SCORE_INCREMENT: 10,
+            DIFFICULTY_THRESHOLD: 5
+        };
+
+        const scoreDisplay = document.getElementById('score-display');
+        const timeDisplay = document.getElementById('time-display');
+        const arrow = document.getElementById('arrow');
+        const target = document.getElementById('target');
+        const arena = document.getElementById('arena');
+        const startBtn = document.getElementById('start-btn');
+        const shootBtn = document.getElementById('shoot-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const gameOverOverlay = document.getElementById('game-over-overlay');
+        const finalScoreDisplay = document.getElementById('final-score');
+
+        let score = 0;
+        let timeLeft = CONFIG.INITIAL_TIME;
+        let gameOver = true;
+        let arrowActive = false;
+        let targetSpeed = CONFIG.INITIAL_TARGET_SPEED;
+        let targetSize = CONFIG.INITIAL_TARGET_SIZE;
+        let targetDirection = 1;
+        let targetPosition = 0;
+
+        let timerInterval = null;
+        let targetInterval = null;
+        let arrowInterval = null;
+
+        const moveTarget = () => {
+            const arenaHeight = arena.offsetHeight;
+            const maxY = arenaHeight - targetSize;
+            
+            targetPosition += targetSpeed * targetDirection;
+
+            if (targetPosition >= maxY || targetPosition <= 0) {
+                targetDirection *= -1;
+                targetPosition = Math.max(0, Math.min(maxY, targetPosition));
+            }
+
+            target.style.top = `${targetPosition}px`;
+        };
+
+        const shootArrow = () => {
+            if (gameOver || arrowActive) return;
+
+            arrowActive = true;
+            shootBtn.disabled = true;
+            arrow.style.display = 'block';
+            arrow.style.left = '60px';
+
+            animateArrow();
+        };
+
+        const animateArrow = () => {
+            const arenaWidth = arena.offsetWidth;
+            let arrowPosition = 60;
+
+            arrowInterval = setInterval(() => {
+                arrowPosition += CONFIG.ARROW_SPEED;
+                arrow.style.left = `${arrowPosition}px`;
+
+                const collision = detectCollision();
+                
+                if (collision) {
+                    clearInterval(arrowInterval);
+                    updateScore();
+                    resetArrow();
+                } else if (arrowPosition >= arenaWidth) {
+                    clearInterval(arrowInterval);
+                    resetArrow();
+                }
+            }, 16);
+        };
+
+        const detectCollision = () => {
+            const arrowRect = arrow.getBoundingClientRect();
+            const targetRect = target.getBoundingClientRect();
+
+            return !(
+                arrowRect.right < targetRect.left ||
+                arrowRect.left > targetRect.right ||
+                arrowRect.bottom < targetRect.top ||
+                arrowRect.top > targetRect.bottom
+            );
+        };
+
+        const resetArrow = () => {
+            arrow.style.display = 'none';
+            arrow.style.left = '60px';
+            arrowActive = false;
+            if (!gameOver) {
+                shootBtn.disabled = false;
+            }
+        };
+
+        const updateScore = () => {
+            score += CONFIG.SCORE_INCREMENT;
+            scoreDisplay.textContent = score;
+
+            if (score % (CONFIG.SCORE_INCREMENT * CONFIG.DIFFICULTY_THRESHOLD) === 0) {
+                increaseDifficulty();
+            }
+        };
+
+        const startTimer = () => {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timeDisplay.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        };
+
+        const increaseDifficulty = () => {
+            targetSpeed += CONFIG.TARGET_SPEED_INCREMENT;
+
+            if (targetSize > CONFIG.MIN_TARGET_SIZE) {
+                targetSize = Math.max(CONFIG.MIN_TARGET_SIZE, targetSize - CONFIG.TARGET_SIZE_DECREMENT);
+                target.style.width = `${targetSize}px`;
+                target.style.height = `${targetSize}px`;
+            }
+        };
+
+        const endGame = () => {
+            gameOver = true;
+            clearInterval(timerInterval);
+            clearInterval(targetInterval);
+            clearInterval(arrowInterval);
+            
+            shootBtn.disabled = true;
+            arrow.style.display = 'none';
+            
+            finalScoreDisplay.textContent = score;
+            gameOverOverlay.classList.add('active');
+        };
+
+        const resetGame = () => {
+            score = 0;
+            timeLeft = CONFIG.INITIAL_TIME;
+            gameOver = false;
+            arrowActive = false;
+            targetSpeed = CONFIG.INITIAL_TARGET_SPEED;
+            targetSize = CONFIG.INITIAL_TARGET_SIZE;
+            targetDirection = 1;
+            targetPosition = 0;
+
+            scoreDisplay.textContent = score;
+            timeDisplay.textContent = timeLeft;
+            target.style.width = `${targetSize}px`;
+            target.style.height = `${targetSize}px`;
+            target.style.top = '50%';
+            target.style.transform = 'translateY(-50%)';
+            arrow.style.display = 'none';
+            arrow.style.left = '60px';
+            gameOverOverlay.classList.remove('active');
+
+            shootBtn.disabled = false;
+            startBtn.disabled = false;
+        };
+
+        const startGame = () => {
+            if (!gameOver) return;
+
+            resetGame();
+            startBtn.disabled = true;
+
+            const arenaHeight = arena.offsetHeight;
+            targetPosition = (arenaHeight - targetSize) / 2;
+            target.style.transform = 'none';
+
+            startTimer();
+            targetInterval = setInterval(moveTarget, 16);
+        };
+
+        startBtn.addEventListener('click', startGame);
+        shootBtn.addEventListener('click', shootArrow);
+        restartBtn.addEventListener('click', startGame);
+
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space') {
+                event.preventDefault();
+                shootArrow();
+            }
+        });
+    </script>
+</body>
+</html>
