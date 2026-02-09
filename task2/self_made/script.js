@@ -27,8 +27,8 @@
   let angle = 0;
   let score = 0;
 
-  let gameTime = 5; // seconds
-  let gameActive = false;
+  let gameTime = 15; // seconds
+  let gameActive = true;
 
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
