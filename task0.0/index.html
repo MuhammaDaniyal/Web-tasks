@@ -9,6 +9,7 @@
         body { font-family: Arial; padding: 20px; }
         li { margin: 6px 0; }
         .done { text-decoration: line-through; color: gray; }
+        .no-done { text-decoration: none; color: pink; }
         button { margin-left: 6px; }
     </style>
 </head>
@@ -106,7 +107,7 @@ $(document).ready(function () {
     // -----------------------
     function addTodoToUI(id, title, completed) {
 
-        let doneClass = completed ? "done" : "";
+        let doneClass = completed ? "done" : "no-done";
 
         $("#todoList").append(`
             <li class="${doneClass}" data-id="${id}">
