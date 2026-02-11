@@ -236,6 +236,7 @@
         const flip_v = document.getElementById("flip-v");
 
         const reset_btn = document.getElementById("reset");
+        const chooseImageBtn = document.getElementById("choose-image");
 
         const image_data = new ImageData();
         let currentMode = "Brightness";
@@ -244,12 +245,24 @@
         img.crossOrigin = "Anonymous";
         img.src = 'test_pic.jpeg';
 
+        
+        // Add this near the top with your other const
+        const rollNumber = 579; // Your roll number
+        const isEven = rollNumber % 2 === 0;
+        const maxStep = isEven ? 2 : 3; // This will be 3 for you (odd)
+        
+        // Then update slider max when needed
+        filter_slider.max = currentMode === 'Brightness' || currentMode === 'Saturation' ? maxStep * 100 : 100;
+        
+        /////////////////////////// Logic started //////////////////////////////////////////////////////// 
+
 
         // ============= MODE CHANGE FUNCTIONS =============
 
         function onChangeModeToBrightness() {
             currentMode = 'Brightness';
             filter_name.innerText = 'Brightness';
+            filter_slider.max = maxStep * 100;
             filter_slider.value = image_data.brightness;
             filter_value.innerText = `${image_data.brightness}%`;
         }
@@ -257,6 +270,7 @@
         function onChangeModeToSaturation() {
             currentMode = 'Saturation';
             filter_name.innerText = 'Saturation';
+            filter_slider.max = maxStep * 100;
             filter_slider.value = image_data.saturation;
             filter_value.innerText = `${image_data.saturation}%`;
         }
@@ -264,6 +278,7 @@
         function onChangeModeToInversion() {
             currentMode = 'Inversion';
             filter_name.innerText = 'Inversion';
+            filter_slider.max = maxStep * 100;
             filter_slider.value = image_data.inversion;
             filter_value.innerText = `${image_data.inversion}%`;
         }
@@ -271,6 +286,7 @@
         function onChangeModeToGrayscale() {
             currentMode = 'Grayscale';
             filter_name.innerText = 'Grayscale';
+            filter_slider.max = maxStep * 100;
             filter_slider.value = image_data.grayscale;
             filter_value.innerText = `${image_data.grayscale}%`;
         }
@@ -278,6 +294,7 @@
         function onChangeModeToSepia() {
             currentMode = 'Sepia';
             filter_name.innerText = 'Sepia';
+            filter_slider.max = maxStep * 100;
             filter_slider.value = image_data.sepia;
             filter_value.innerText = `${image_data.sepia}%`;
         }
@@ -286,10 +303,12 @@
             currentMode = 'Blur';
             filter_name.innerText = 'Blur';
             filter_slider.value = image_data.blur;
+            filter_slider.max = maxStep * 100;
             const blurValue = (image_data.blur / 100) * 10;
             filter_value.innerText = `${blurValue.toFixed(1)}px`;
         }
 
+        // ===================  Movement =======================
 
         function rotateLeft() {
             image_data.rotate -= 90;
@@ -311,6 +330,7 @@
             canvas.style.transform = `rotate(${image_data.rotate}deg) scaleX(${image_data.fliph}) scaleY(${image_data.flipv})`;
         }
 
+        //  BIG FTNS
 
         function updateCanvasFilter() {
             let filterString = '';
@@ -376,13 +396,10 @@
             updateCanvasFilter();
         }
 
-        
+        // buttons logics
 
-        img.onload = function () {
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        }
-
-        reset_btn.addEventListener("click", () => {
+        function resetImage()
+        {
             image_data.brightness = 100;
             image_data.saturation = 100;
             image_data.sepia = 0;
@@ -392,6 +409,8 @@
             image_data.rotate = 0;
             image_data.fliph = 1;
             image_data.flipv = 1;
+
+            canvas.style.transform = `rotate(${image_data.rotate}deg) scaleX(${image_data.fliph}) scaleY(${image_data.flipv})`;
 
             if(currentMode == "Brightness" || currentMode == "Saturation")
             {
@@ -404,8 +423,112 @@
                 filter_slider.value = 0;
             }
 
-            updateCanvasFilter()
-        })
+            updateCanvasFilter();            
+        }
+
+
+        // Add this with your other getElementById calls
+
+// Add this after your other event listeners
+        chooseImageBtn.addEventListener("click", function() {
+            // Create file input dynamically
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            
+            fileInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = new Image();
+                        img.onload = function() {
+                            // Clear any existing transforms
+                            canvas.style.transform = 'none';
+                            
+                            // Reset all image data
+                            image_data.brightness = 100;
+                            image_data.saturation = 100;
+                            image_data.inversion = 0;
+                            image_data.grayscale = 0;
+                            image_data.sepia = 0;
+                            image_data.blur = 0;
+                            image_data.rotate = 0;
+                            image_data.fliph = 1;
+                            image_data.flipv = 1;
+                            
+                            // Draw new image
+                            resizeCanvasToFitImage(img);
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            
+                            // Reset filter
+                            canvas.style.filter = 'none';
+                            updateCanvasFilter();
+                            
+                            // Reset UI
+                            onChangeModeToBrightness();
+                        }
+                        img.src = event.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            }
+            
+            fileInput.click();
+        });
+                
+        // Add this function to resize canvas while maintaining aspect ratio
+function resizeCanvasToFitImage(img) {
+    // Max canvas dimensions
+    const maxWidth = 500;
+    const maxHeight = 400;
+    
+    let width = img.width;
+    let height = img.height;
+    
+    // Calculate new dimensions maintaining aspect ratio
+    if (width > maxWidth) {
+        height = (maxWidth / width) * height;
+        width = maxWidth;
+    }
+    
+    if (height > maxHeight) {
+        width = (maxHeight / height) * width;
+        height = maxHeight;
+    }
+    
+    // Update canvas dimensions
+    canvas.width = width;
+    canvas.height = height;
+}
+
+// Replace the image upload drawing part too
+img.onload = function() {
+    resizeCanvasToFitImage(img);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    
+    // Reset all image data
+    image_data.brightness = 100;
+    image_data.saturation = 100;
+    image_data.inversion = 0;
+    image_data.grayscale = 0;
+    image_data.sepia = 0;
+    image_data.blur = 0;
+    image_data.rotate = 0;
+    image_data.fliph = 1;
+    image_data.flipv = 1;
+    
+    // Reset filter
+    canvas.style.filter = 'none';
+    canvas.style.transform = 'none';
+    updateCanvasFilter();
+    
+    // Reset UI
+    onChangeModeToBrightness();
+}
+
+        reset_btn.addEventListener("click", resetImage)
 
         filter_slider.oninput = onInputSlider;
 
