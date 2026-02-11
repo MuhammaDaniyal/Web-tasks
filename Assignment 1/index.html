@@ -1,46 +1,422 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Image Editor</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            gap: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters-area {
+            flex: 1;
+        }
+
+        .filters-area h4 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .button:hover {
+            background: #0056b3;
+        }
+
+        .slider-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        input[type=range] {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .rotate-flip {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* -------------------------------------- CANVAS -------------------------------------- */
+
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            max-width: 100%;
+            max-height: 500px;
+            display: block;
+        }
+
+        .canvas-placeholder {
+            width: 500px;
+            height: 400px;
+            background: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #999;
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+        }
+
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .right-side {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #218838;
+        }
+
+        .reset-btn {
+            background: #dc3545;
+        }
+
+        .reset-btn:hover {
+            background: #c82333;
+        }
+
+        @media (max-width: 770px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+
 </head>
+
 <body>
 
     <div class="container">
 
         <div class="filters-area">
+
             <h4>Filters</h4>
+
             <div class="options">
-                <div class="button">Brightness</div>
-                <div class="button">Saturation</div>
-                <div class="button">Inversion</div>
-                <div class="button">GrayScale</div>
+                <div class="button" id="brightness" onclick="onChangeModeToBrightness()">Brightness</div>
+                <div class="button" id="saturation" onclick="onChangeModeToSaturation()">Saturation</div>
+                <div class="button" id="inversion" onclick="onChangeModeToInversion()">Inversion</div>
+                <div class="button" id="grayscale" onclick="onChangeModeToGrayscale()">Grayscale</div>
+                <div class="button" id="sepia" onclick="onChangeModeToSepia()">Sepia</div>
+                <div class="button" id="blur" onclick="onChangeModeToBlur()">Blur</div>
             </div>
 
-            <div class="slider">
-                <span>Name/Percent</span>
-                <span>Slider</span>
+            <div class="slider-container">
+                <div class="slider-header">
+                    <span id="filter-name">Brightness</span>
+                    <span id="filter-value">100%</span>
+                </div>
+                <input type="range" id="filter-slider" min="0" max="200" value="100">
             </div>
 
             <div class="rotate-flip">
-                
+                <div class="button" id="rotate-left">↺ Rotate Left</div>
+                <div class="button" id="rotate-right">↻ Rotate Right</div>
+                <div class="button" id="flip-h">⇄ Flip H</div>
+                <div class="button" id="flip-v">⇅ Flip V</div>
             </div>
+
         </div>
 
         <div class="canvas-area">
-
+            <canvas id="image-canvas" width="500" height="400"></canvas>
         </div>
 
     </div>
 
     <div class="buttons">
-        <button>Reset Filters</button>
+        <button class="reset-btn" id="reset">Reset All Filters</button>
         <div class="right-side">
-            <button>choose Image</button>
-            <button>Save Image</button>
+            <button id="choose-image">📁 Choose Image</button>
+            <button id="save-image">💾 Save Image</button>
         </div>
     </div>
-    
+
+    <script>
+
+        // const 
+
+        class ImageData {
+            constructor() {
+                this.inversion = 0;
+                this.brightness = 100;
+                this.saturation = 100;
+                this.grayscale = 0;
+                this.sepia = 0;
+                this.blur = 0;
+
+                this.rotate = 0;
+                this.fliph = 1;
+                this.flipv = 1;
+            }
+        }
+
+        const canvas = document.getElementById('image-canvas');
+        const ctx = canvas.getContext('2d');
+        const filter_name = document.getElementById("filter-name");
+        const filter_slider = document.getElementById("filter-slider");
+        const filter_value = document.getElementById("filter-value");
+
+        const rotate_left = document.getElementById("rotate-left");
+        const rotate_right = document.getElementById("rotate-right");
+        const flip_h = document.getElementById("flip-h");
+        const flip_v = document.getElementById("flip-v");
+
+        const reset_btn = document.getElementById("reset");
+
+        const image_data = new ImageData();
+        let currentMode = "Brightness";
+
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.src = 'test_pic.jpeg';
+
+
+        // ============= MODE CHANGE FUNCTIONS =============
+
+        function onChangeModeToBrightness() {
+            currentMode = 'Brightness';
+            filter_name.innerText = 'Brightness';
+            filter_slider.value = image_data.brightness;
+            filter_value.innerText = `${image_data.brightness}%`;
+        }
+
+        function onChangeModeToSaturation() {
+            currentMode = 'Saturation';
+            filter_name.innerText = 'Saturation';
+            filter_slider.value = image_data.saturation;
+            filter_value.innerText = `${image_data.saturation}%`;
+        }
+
+        function onChangeModeToInversion() {
+            currentMode = 'Inversion';
+            filter_name.innerText = 'Inversion';
+            filter_slider.value = image_data.inversion;
+            filter_value.innerText = `${image_data.inversion}%`;
+        }
+
+        function onChangeModeToGrayscale() {
+            currentMode = 'Grayscale';
+            filter_name.innerText = 'Grayscale';
+            filter_slider.value = image_data.grayscale;
+            filter_value.innerText = `${image_data.grayscale}%`;
+        }
+
+        function onChangeModeToSepia() {
+            currentMode = 'Sepia';
+            filter_name.innerText = 'Sepia';
+            filter_slider.value = image_data.sepia;
+            filter_value.innerText = `${image_data.sepia}%`;
+        }
+
+        function onChangeModeToBlur() {
+            currentMode = 'Blur';
+            filter_name.innerText = 'Blur';
+            filter_slider.value = image_data.blur;
+            const blurValue = (image_data.blur / 100) * 10;
+            filter_value.innerText = `${blurValue.toFixed(1)}px`;
+        }
+
+
+        function rotateLeft() {
+            image_data.rotate -= 90;
+            canvas.style.transform = `rotate(${image_data.rotate}deg) scaleX(${image_data.fliph}) scaleY(${image_data.flipv})`;
+        }
+
+        function rotateRight() {
+            image_data.rotate += 90;
+            canvas.style.transform = `rotate(${image_data.rotate}deg) scaleX(${image_data.fliph}) scaleY(${image_data.flipv})`;
+        }
+
+        function flipHorizontal() {
+            image_data.fliph *= -1;
+            canvas.style.transform = `rotate(${image_data.rotate}deg) scaleX(${image_data.fliph}) scaleY(${image_data.flipv})`;
+        }
+
+        function flipVertical() {
+            image_data.flipv *= -1;
+            canvas.style.transform = `rotate(${image_data.rotate}deg) scaleX(${image_data.fliph}) scaleY(${image_data.flipv})`;
+        }
+
+
+        function updateCanvasFilter() {
+            let filterString = '';
+
+            // Add all non-default filters
+            if (image_data.brightness !== 100)
+                filterString += `brightness(${image_data.brightness}%) `;
+
+            if (image_data.saturation !== 100)
+                filterString += `saturate(${image_data.saturation}%) `;
+
+            if (image_data.inversion !== 0)
+                filterString += `invert(${image_data.inversion}%) `;
+
+            if (image_data.grayscale !== 0)
+                filterString += `grayscale(${image_data.grayscale}%) `;
+
+            if (image_data.sepia !== 0)
+                filterString += `sepia(${image_data.sepia}%) `;
+
+            if (image_data.blur !== 0) {
+                const blurValue = (image_data.blur / 100) * 10;
+                filterString += `blur(${blurValue}px) `;
+            }
+
+            // If no filters, set to none
+            canvas.style.filter = filterString.trim() || 'none';
+        }
+
+
+        function onInputSlider() {
+            const value = this.value;
+
+            switch (currentMode) {
+                case 'Brightness':
+                    image_data.brightness = value;
+                    filter_value.innerText = value + '%';
+                    break;
+                case 'Saturation':
+                    image_data.saturation = value;
+                    filter_value.innerText = value + '%';
+                    break;
+                case 'Inversion':
+                    image_data.inversion = value;
+                    filter_value.innerText = value + '%';
+                    break;
+                case 'Grayscale':
+                    image_data.grayscale = value;
+                    filter_value.innerText = value + '%';
+                    break;
+                case 'Sepia':
+                    image_data.sepia = value;
+                    filter_value.innerText = value + '%';
+                    break;
+                case 'Blur':
+                    image_data.blur = value;
+                    const blurValue = (value / 100) * 10;
+                    filter_value.innerText = blurValue.toFixed(1) + 'px';
+                    break;
+            }
+
+            // Update ALL filters at once
+            updateCanvasFilter();
+        }
+
+        
+
+        img.onload = function () {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
+
+        reset_btn.addEventListener("click", () => {
+            image_data.brightness = 100;
+            image_data.saturation = 100;
+            image_data.sepia = 0;
+            image_data.inversion = 0;
+            image_data.blur = 0;
+            image_data.grayscale = 0;
+            image_data.rotate = 0;
+            image_data.fliph = 1;
+            image_data.flipv = 1;
+
+            if(currentMode == "Brightness" || currentMode == "Saturation")
+            {
+                filter_value.innerText = `100%`;
+                filter_slider.value = 100;
+            }
+            else
+            {
+                filter_value.innerText = `0`;
+                filter_slider.value = 0;
+            }
+
+            updateCanvasFilter()
+        })
+
+        filter_slider.oninput = onInputSlider;
+
+        rotate_left.addEventListener("click", rotateLeft);
+        rotate_right.addEventListener("click", rotateRight);
+        flip_h.addEventListener("click", flipHorizontal);
+        flip_v.addEventListener("click", flipVertical);
+
+
+    </script>
+
 </body>
+
 </html>
