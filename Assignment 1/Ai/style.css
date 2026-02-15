@@ -1,0 +1,276 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header */
+.heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 20px 30px;
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.heading h1 {
+    color: #333;
+    font-size: 28px;
+}
+
+.history {
+    display: flex;
+    gap: 10px;
+}
+
+.history button {
+    padding: 8px 16px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.history button:hover:not(:disabled) {
+    background: #5568d3;
+    transform: translateY(-2px);
+}
+
+.history button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Main Container */
+.container {
+    display: flex;
+    gap: 30px;
+    background: white;
+    padding: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Left Panel - Filters Area */
+.filters-area {
+    flex: 1;
+    min-width: 300px;
+}
+
+.filters-area h4 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.button {
+    padding: 12px 20px;
+    background: #f0f0f0;
+    color: #333;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+    border: 2px solid transparent;
+}
+
+.button:hover {
+    background: #e0e0e0;
+    transform: translateY(-2px);
+}
+
+.button.active {
+    background: #667eea;
+    color: white;
+    border-color: #5568d3;
+}
+
+/* Slider Container */
+.slider-container {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.slider-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.slider-header span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+#filter-value {
+    color: #667eea;
+}
+
+#filter-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 5px;
+    outline: none;
+    -webkit-appearance: none;
+    background: #ddd;
+}
+
+#filter-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#filter-slider::-webkit-slider-thumb:hover {
+    background: #5568d3;
+    transform: scale(1.2);
+}
+
+#filter-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+#filter-slider::-moz-range-thumb:hover {
+    background: #5568d3;
+    transform: scale(1.2);
+}
+
+/* Transform Buttons */
+.rotate-flip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.transform-btn {
+    background: #764ba2;
+    color: white;
+}
+
+.transform-btn:hover {
+    background: #6a4292;
+}
+
+/* Right Panel - Canvas Area */
+.canvas-area {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+#image-canvas {
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Bottom Buttons */
+.buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    background: white;
+    padding: 20px 30px;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.buttons button {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+#reset {
+    background: #ff6b6b;
+    color: white;
+}
+
+#reset:hover {
+    background: #ee5a52;
+    transform: translateY(-2px);
+}
+
+#choose-image {
+    background: #51cf66;
+    color: white;
+}
+
+#choose-image:hover {
+    background: #40c057;
+    transform: translateY(-2px);
+}
+
+#save-image {
+    background: #339af0;
+    color: white;
+}
+
+#save-image:hover {
+    background: #228be6;
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+    .container {
+        flex-direction: column;
+    }
+    
+    .filters-area {
+        min-width: auto;
+    }
+    
+    .buttons {
+        flex-wrap: wrap;
+    }
+}

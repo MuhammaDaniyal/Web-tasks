@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Editor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <!-- Header with title and undo/redo -->
+        <div class="heading">
+            <h1>Image Processing</h1>
+            <div class="history">
+                <button id="undo" disabled>↺ Undo</button>
+                <button id="redo" disabled>↻ Redo</button>
+            </div>
+        </div>
+        
+        <!-- Main container with filters and canvas -->
+        <div class="container">
+            <!-- Left Panel - Filters Area -->
+            <div class="filters-area">
+                <h4>Filters</h4>
+                <div class="options">
+                    <div class="button active" id="brightness-btn" onclick="onChangeModeToBrightness()">Brightness</div>
+                    <div class="button" id="saturation-btn" onclick="onChangeModeToSaturation()">Saturation</div>
+                    <div class="button" id="inversion-btn" onclick="onChangeModeToInversion()">Inversion</div>
+                    <div class="button" id="grayscale-btn" onclick="onChangeModeToGrayscale()">Grayscale</div>
+                    <div class="button" id="sepia-btn" onclick="onChangeModeToSepia()">Sepia</div>
+                    <div class="button" id="blur-btn" onclick="onChangeModeToBlur()">Blur</div>
+                </div>
+                
+                <!-- Slider Section -->
+                <div class="slider-container">
+                    <div class="slider-header">
+                        <span id="filter-name">Brightness</span>
+                        <span id="filter-value">100%</span>
+                    </div>
+                    <input type="range" id="filter-slider" min="0" max="200" value="100" oninput="onInputSlider()">
+                </div>
+                
+                <!-- Transform Operations -->
+                <h4 style="margin-top: 30px;">Transform</h4>
+                <div class="rotate-flip">
+                    <div class="button transform-btn" onclick="rotateLeft()">↺ Rotate Left</div>
+                    <div class="button transform-btn" onclick="rotateRight()">↻ Rotate Right</div>
+                    <div class="button transform-btn" onclick="flipHorizontal()">↔ Flip Horizontal</div>
+                    <div class="button transform-btn" onclick="flipVertical()">↕ Flip Vertical</div>
+                </div>
+            </div>
+            
+            <!-- Right Panel - Canvas Area -->
+            <div class="canvas-area">
+                <canvas id="image-canvas" width="500" height="400"></canvas>
+            </div>
+        </div>
+        
+        <!-- Bottom Buttons -->
+        <div class="buttons">
+            <button id="reset" onclick="resetImage()">Reset All Filters</button>
+            <button id="choose-image" onclick="chooseImageFtn()">Choose Image</button>
+            <button id="save-image" onclick="saveImage()">Save Image</button>
+        </div>
+        
+        <!-- Hidden file input -->
+        <input type="file" id="file-input" accept="image/*" style="display: none;">
+    </main>
+    
+    <script src="script.js"></script>
+</body>
+</html>

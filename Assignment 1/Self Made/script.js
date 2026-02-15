@@ -1,4 +1,3 @@
-
 // =================================================
 // ============= MODE CHANGE FUNCTIONS =============
 // =================================================
@@ -13,15 +12,25 @@ class ImageData {
         this.grayscale = grayscale;
         this.sepia = sepia;
         this.blur = blur;
-
         this.rotate = rotate;
         this.fliph = flip_h;
         this.flipv = flip_v;
     }
 }
 
+// =================================================
+// =============== CANVAS SETUP ====================
+// =================================================
+
 const canvas = document.getElementById('image-canvas');
 const ctx = canvas.getContext('2d');
+
+// FIXED CANVAS SIZE - never changes
+const CANVAS_WIDTH = 500;
+const CANVAS_HEIGHT = 400;
+canvas.width = CANVAS_WIDTH;
+canvas.height = CANVAS_HEIGHT;
+
 const filter_name = document.getElementById("filter-name");
 const filter_slider = document.getElementById("filter-slider");
 const filter_value = document.getElementById("filter-value");
@@ -40,9 +49,9 @@ const redo_btn = document.getElementById('redo');
 const image_data = new ImageData();
 let currentMode = "Brightness";
 
-const img = new Image();
-img.crossOrigin = "Anonymous";
-img.src = 'test_pic.jpeg';
+// Store the original image
+let originalImage = new Image();
+originalImage.crossOrigin = "Anonymous";
 
 const rollNumber = 579;
 const isEven = rollNumber % 2 === 0;
@@ -51,6 +60,104 @@ const maxStep = isEven ? 2 : 3;
 filter_slider.max = currentMode === 'Brightness' || currentMode === 'Saturation' ? maxStep * 100 : 100;
 
 let sliderTimeout;
+
+// =================================================
+// ============ IMAGE FITTING LOGIC ================
+// =================================================
+
+/**
+ * Calculate how to fit and center an image within the canvas
+ * Takes rotation into account to ensure rotated image fits
+ */
+
+function calculateImageLayout(img, rotation) {
+    // Get rotation in radians
+    const rad = (rotation % 360) * Math.PI / 180;
+    const absRad = Math.abs(rad);
+    
+    // Calculate rotated bounding box dimensions
+    const rotatedWidth = Math.abs(img.width * Math.cos(absRad)) + Math.abs(img.height * Math.sin(absRad));
+    const rotatedHeight = Math.abs(img.width * Math.sin(absRad)) + Math.abs(img.height * Math.cos(absRad));
+    
+    // Calculate scale to fit rotated image within canvas
+    const scaleX = CANVAS_WIDTH / rotatedWidth;
+    const scaleY = CANVAS_HEIGHT / rotatedHeight;
+    const scale = Math.min(scaleX, scaleY);
+    
+    // Calculate final display dimensions (before rotation)
+    const displayWidth = img.width * scale;
+    const displayHeight = img.height * scale;
+    
+    return {
+        scale: scale,
+        displayWidth: displayWidth,
+        displayHeight: displayHeight,
+        centerX: CANVAS_WIDTH / 2,
+        centerY: CANVAS_HEIGHT / 2
+    };
+}
+
+// =================================================
+// ============ CANVAS DRAWING FUNCTION ============
+// =================================================
+
+/**
+ * Main drawing function - renders image with all transforms and filters
+ * This is the single source of truth for how the image appears
+ */
+function drawImage() {
+    if (!originalImage.complete || !originalImage.naturalWidth) {
+        return; // Image not loaded yet
+    }
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    
+    // Optional: Add white background (or leave transparent)
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    
+    // Calculate layout based on current rotation
+    const layout = calculateImageLayout(originalImage, image_data.rotate);
+    
+    // Save context state
+    ctx.save();
+    
+    // Build CSS filter string for canvas
+    let filterString = '';
+    if (image_data.brightness !== 100) filterString += `brightness(${image_data.brightness}%) `;
+    if (image_data.saturation !== 100) filterString += `saturate(${image_data.saturation}%) `;
+    if (image_data.inversion !== 0) filterString += `invert(${image_data.inversion}%) `;
+    if (image_data.grayscale !== 0) filterString += `grayscale(${image_data.grayscale}%) `;
+    if (image_data.sepia !== 0) filterString += `sepia(${image_data.sepia}%) `;
+    if (image_data.blur !== 0) {
+        const blurValue = (image_data.blur / 100) * 10;
+        filterString += `blur(${blurValue}px) `;
+    }
+    
+    ctx.filter = filterString.trim() || 'none';
+    
+    // Move to center of canvas
+    ctx.translate(layout.centerX, layout.centerY);
+    
+    // Apply rotation
+    ctx.rotate(image_data.rotate * Math.PI / 180);
+    
+    // Apply flip
+    ctx.scale(image_data.fliph, image_data.flipv);
+    
+    // Draw image centered at origin
+    ctx.drawImage(
+        originalImage,
+        -layout.displayWidth / 2,
+        -layout.displayHeight / 2,
+        layout.displayWidth,
+        layout.displayHeight
+    );
+    
+    // Restore context state
+    ctx.restore();
+}
 
 // =================================================
 // ============= MODE CHANGE FUNCTIONS =============
@@ -105,70 +212,37 @@ function onChangeModeToBlur() {
     filter_value.innerText = `${blurValue.toFixed(1)}px`;
 }
 
-
 // =================================================
 // ==================== MOVEMENT ===================
 // =================================================
 
 function rotateLeft() {
     image_data.rotate -= 90;
-    canvas.style.transform = `rotate(${image_data.rotate}deg) scaleX(${image_data.fliph}) scaleY(${image_data.flipv})`;
+    drawImage();
     pushToHistory();
 }
 
 function rotateRight() {
     image_data.rotate += 90;
-    canvas.style.transform = `rotate(${image_data.rotate}deg) scaleX(${image_data.fliph}) scaleY(${image_data.flipv})`;
+    drawImage();
     pushToHistory();
 }
 
 function flipHorizontal() {
     image_data.fliph *= -1;
-    canvas.style.transform = `rotate(${image_data.rotate}deg) scaleX(${image_data.fliph}) scaleY(${image_data.flipv})`;
+    drawImage();
     pushToHistory();
 }
 
 function flipVertical() {
     image_data.flipv *= -1;
-    canvas.style.transform = `rotate(${image_data.rotate}deg) scaleX(${image_data.fliph}) scaleY(${image_data.flipv})`;
+    drawImage();
     pushToHistory();
 }
-
 
 // =================================================
 // ================= IMPLEMENTATION ================
 // =================================================
-
-
-
-function updateCanvasFilter() {
-    let filterString = '';
-
-    // Add all non-default filters
-    if (image_data.brightness !== 100)
-        filterString += `brightness(${image_data.brightness}%) `;
-
-    if (image_data.saturation !== 100)
-        filterString += `saturate(${image_data.saturation}%) `;
-
-    if (image_data.inversion !== 0)
-        filterString += `invert(${image_data.inversion}%) `;
-
-    if (image_data.grayscale !== 0)
-        filterString += `grayscale(${image_data.grayscale}%) `;
-
-    if (image_data.sepia !== 0)
-        filterString += `sepia(${image_data.sepia}%) `;
-
-    if (image_data.blur !== 0) {
-        const blurValue = (image_data.blur / 100) * 10;
-        filterString += `blur(${blurValue}px) `;
-    }
-
-    // If no filters, set to none
-    canvas.style.filter = filterString.trim() || 'none';
-}
-
 
 function onInputSlider() {
     const value = this.value;
@@ -201,8 +275,9 @@ function onInputSlider() {
             break;
     }
 
-    // Update ALL filters at once
-    updateCanvasFilter();
+    // Redraw with new filter
+    drawImage();
+    
     clearTimeout(sliderTimeout);
     sliderTimeout = setTimeout(() => {
         pushToHistory();
@@ -224,18 +299,15 @@ function resetImage() {
     image_data.fliph = 1;
     image_data.flipv = 1;
 
-    canvas.style.transform = `rotate(${image_data.rotate}deg) scaleX(${image_data.fliph}) scaleY(${image_data.flipv})`;
-
     if (currentMode == "Brightness" || currentMode == "Saturation") {
         filter_value.innerText = `100%`;
         filter_slider.value = 100;
-    }
-    else {
+    } else {
         filter_value.innerText = `0`;
         filter_slider.value = 0;
     }
 
-    updateCanvasFilter();
+    drawImage();
     pushToHistory();
 }
 
@@ -251,9 +323,9 @@ function chooseImageFtn() {
             reader.onload = function (event) {
                 const img = new Image();
                 img.onload = function () {
-                    // Clear any existing transforms
-                    canvas.style.transform = 'none';
-
+                    // Store the new image
+                    originalImage = img;
+                    
                     // Reset all image data
                     image_data.brightness = 100;
                     image_data.saturation = 100;
@@ -265,14 +337,8 @@ function chooseImageFtn() {
                     image_data.fliph = 1;
                     image_data.flipv = 1;
 
-                    // Draw new image
-                    resizeCanvasToFitImage(img);
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                    // Reset filter
-                    canvas.style.filter = 'none';
-                    updateCanvasFilter();
+                    // Draw the image
+                    drawImage();
 
                     // Reset UI
                     onChangeModeToBrightness();
@@ -312,7 +378,6 @@ function updateUndoRedoButtons() {
 }
 
 function pushToHistory() {
-
     if (currentHistoryIndex < history.length - 1) {
         history = history.slice(0, currentHistoryIndex + 1);
     }
@@ -330,7 +395,6 @@ function pushToHistory() {
     );
 
     history.push(newState);
-
     currentHistoryIndex = history.length - 1;
 
     if (history.length > MAX_HISTORY) {
@@ -338,11 +402,9 @@ function pushToHistory() {
         currentHistoryIndex--;
     }
     updateUndoRedoButtons();
-
 }
 
 function undo() {
-
     if (currentHistoryIndex > 0) {
         currentHistoryIndex--;
         const state = history[currentHistoryIndex];
@@ -357,9 +419,7 @@ function undo() {
         image_data.fliph = state.fliph;
         image_data.flipv = state.flipv;
 
-        canvas.style.transform = `rotate(${image_data.rotate}deg) scaleX(${image_data.fliph}) scaleY(${image_data.flipv})`;
-        updateCanvasFilter();
-
+        drawImage();
         updateUIFromCurrentState();
     }
     test_div.innerText = `History Length: ${history.length}, Current Index: ${currentHistoryIndex}`;
@@ -367,12 +427,10 @@ function undo() {
 }
 
 function redo() {
-    // Check if we can redo
     if (currentHistoryIndex < history.length - 1) {
         currentHistoryIndex++;
         const state = history[currentHistoryIndex];
 
-        // Copy all values to image_data
         image_data.inversion = state.inversion;
         image_data.brightness = state.brightness;
         image_data.saturation = state.saturation;
@@ -383,11 +441,7 @@ function redo() {
         image_data.fliph = state.fliph;
         image_data.flipv = state.flipv;
 
-        // Update canvas
-        canvas.style.transform = `rotate(${image_data.rotate}deg) scaleX(${image_data.fliph}) scaleY(${image_data.flipv})`;
-        updateCanvasFilter();
-
-        // Update UI based on current mode
+        drawImage();
         updateUIFromCurrentState();
     }
     test_div.innerText = `History Length: ${history.length}, Current Index: ${currentHistoryIndex}`;
@@ -423,41 +477,29 @@ function updateUIFromCurrentState() {
             filter_value.innerText = `${blurValue.toFixed(1)}px`;
             break;
     }
-
-
 }
 
-// Ultilies
+// =================================================
+// =================== SAVE IMAGE ==================
+// =================================================
 
-function resizeCanvasToFitImage(img) {
-    // Max canvas dimensions
-    const maxWidth = 500;
-    const maxHeight = 400;
-
-    let width = img.width;
-    let height = img.height;
-
-    // Calculate new dimensions maintaining aspect ratio
-    if (width > maxWidth) {
-        height = (maxWidth / width) * height;
-        width = maxWidth;
-    }
-
-    if (height > maxHeight) {
-        width = (maxHeight / height) * width;
-        height = maxHeight;
-    }
-
-    // Update canvas dimensions
-    canvas.width = width;
-    canvas.height = height;
+/**
+ * Save function - now MUCH simpler!
+ * The canvas already shows the final result, just export it
+ */
+function saveImage() {
+    const link = document.createElement('a');
+    link.download = 'edited-image.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
 }
 
-// Replace the image upload drawing part too
-img.onload = function () {
-    resizeCanvasToFitImage(img);
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+// =================================================
+// =============== INITIAL IMAGE LOAD ==============
+// =================================================
 
+// Load initial test image
+originalImage.onload = function () {
     // Reset all image data
     image_data.brightness = 100;
     image_data.saturation = 100;
@@ -469,124 +511,23 @@ img.onload = function () {
     image_data.fliph = 1;
     image_data.flipv = 1;
 
-    // Reset filter
-    canvas.style.filter = 'none';
-    canvas.style.transform = 'none';
-    updateCanvasFilter();
+    // Draw the image
+    drawImage();
 
     // Reset UI
     onChangeModeToBrightness();
     pushToHistory();
 }
 
-
-function saveImage() {
-    // Create a temporary canvas to apply all effects
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-    const tempCtx = tempCanvas.getContext('2d');
-    
-    // 1. Apply rotation and flip transformations
-    tempCtx.translate(tempCanvas.width/2, tempCanvas.height/2);
-    tempCtx.rotate(image_data.rotate * Math.PI/180);
-    tempCtx.scale(image_data.fliph, image_data.flipv);
-    tempCtx.translate(-tempCanvas.width/2, -tempCanvas.height/2);
-    
-    // 2. Draw the original canvas content with transformations
-    tempCtx.drawImage(canvas, 0, 0);
-    
-    // 3. Apply filters manually to the pixel data
-    let imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-    let data = imageData.data;
-    
-    // Brightness
-    if (image_data.brightness !== 100) {
-        const factor = image_data.brightness / 100;
-        for (let i = 0; i < data.length; i += 4) {
-            data[i] = Math.min(255, data[i] * factor);
-            data[i+1] = Math.min(255, data[i+1] * factor);
-            data[i+2] = Math.min(255, data[i+2] * factor);
-        }
-    }
-    
-    // Inversion
-    if (image_data.inversion > 0) {
-        const factor = image_data.inversion / 100;
-        for (let i = 0; i < data.length; i += 4) {
-            data[i] = data[i] + (255 - 2 * data[i]) * factor;
-            data[i+1] = data[i+1] + (255 - 2 * data[i+1]) * factor;
-            data[i+2] = data[i+2] + (255 - 2 * data[i+2]) * factor;
-        }
-    }
-    
-    // Grayscale
-    if (image_data.grayscale > 0) {
-        const factor = image_data.grayscale / 100;
-        for (let i = 0; i < data.length; i += 4) {
-            const gray = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
-            data[i] = data[i] + (gray - data[i]) * factor;
-            data[i+1] = data[i+1] + (gray - data[i+1]) * factor;
-            data[i+2] = data[i+2] + (gray - data[i+2]) * factor;
-        }
-    }
-    
-    // Sepia
-    if (image_data.sepia > 0) {
-        const factor = image_data.sepia / 100;
-        for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i+1];
-            const b = data[i+2];
-            
-            const sr = r * 0.393 + g * 0.769 + b * 0.189;
-            const sg = r * 0.349 + g * 0.686 + b * 0.168;
-            const sb = r * 0.272 + g * 0.534 + b * 0.131;
-            
-            data[i] = Math.min(255, r + (sr - r) * factor);
-            data[i+1] = Math.min(255, g + (sg - g) * factor);
-            data[i+2] = Math.min(255, b + (sb - b) * factor);
-        }
-    }
-    
-    // Saturation
-    if (image_data.saturation !== 100) {
-        const factor = image_data.saturation / 100;
-        for (let i = 0; i < data.length; i += 4) {
-            const gray = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
-            data[i] = Math.min(255, gray + (data[i] - gray) * factor);
-            data[i+1] = Math.min(255, gray + (data[i+1] - gray) * factor);
-            data[i+2] = Math.min(255, gray + (data[i+2] - gray) * factor);
-        }
-    }
-    
-    // Apply the modified pixel data
-    tempCtx.putImageData(imageData, 0, 0);
-    
-    // Handle blur separately (can use CSS filter on temp canvas)
-    if (image_data.blur > 0) {
-        const blurValue = (image_data.blur / 100) * 10;
-        tempCtx.filter = `blur(${blurValue}px)`;
-        tempCtx.drawImage(tempCanvas, 0, 0);
-    }
-    
-    // Download
-    const link = document.createElement('a');
-    link.download = 'edited-image.png';
-    link.href = tempCanvas.toDataURL('image/png');
-    link.click();
-}
-
-
-// Add event listener
-save_image_btn.addEventListener("click", saveImage);
+originalImage.src = 'test_pic.jpeg';
 
 // =================================================
 // ================= EVENT LISTENERS ===============
 // =================================================
 
-reset_btn.addEventListener("click", resetImage)
+reset_btn.addEventListener("click", resetImage);
 chooseImageBtn.addEventListener("click", chooseImageFtn);
+save_image_btn.addEventListener("click", saveImage);
 
 filter_slider.oninput = onInputSlider;
 
@@ -597,3 +538,9 @@ flip_v.addEventListener("click", flipVertical);
 
 undo_btn.addEventListener("click", undo);
 redo_btn.addEventListener("click", redo);
+
+// Handle window resize (redraw to maintain appearance)
+window.addEventListener('resize', () => {
+    // Canvas size stays fixed, but redraw to ensure everything looks good
+    drawImage();
+});
