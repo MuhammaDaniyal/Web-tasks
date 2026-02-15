@@ -480,6 +480,107 @@ img.onload = function () {
 }
 
 
+function saveImage() {
+    // Create a temporary canvas to apply all effects
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    
+    // 1. Apply rotation and flip transformations
+    tempCtx.translate(tempCanvas.width/2, tempCanvas.height/2);
+    tempCtx.rotate(image_data.rotate * Math.PI/180);
+    tempCtx.scale(image_data.fliph, image_data.flipv);
+    tempCtx.translate(-tempCanvas.width/2, -tempCanvas.height/2);
+    
+    // 2. Draw the original canvas content with transformations
+    tempCtx.drawImage(canvas, 0, 0);
+    
+    // 3. Apply filters manually to the pixel data
+    let imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+    let data = imageData.data;
+    
+    // Brightness
+    if (image_data.brightness !== 100) {
+        const factor = image_data.brightness / 100;
+        for (let i = 0; i < data.length; i += 4) {
+            data[i] = Math.min(255, data[i] * factor);
+            data[i+1] = Math.min(255, data[i+1] * factor);
+            data[i+2] = Math.min(255, data[i+2] * factor);
+        }
+    }
+    
+    // Inversion
+    if (image_data.inversion > 0) {
+        const factor = image_data.inversion / 100;
+        for (let i = 0; i < data.length; i += 4) {
+            data[i] = data[i] + (255 - 2 * data[i]) * factor;
+            data[i+1] = data[i+1] + (255 - 2 * data[i+1]) * factor;
+            data[i+2] = data[i+2] + (255 - 2 * data[i+2]) * factor;
+        }
+    }
+    
+    // Grayscale
+    if (image_data.grayscale > 0) {
+        const factor = image_data.grayscale / 100;
+        for (let i = 0; i < data.length; i += 4) {
+            const gray = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
+            data[i] = data[i] + (gray - data[i]) * factor;
+            data[i+1] = data[i+1] + (gray - data[i+1]) * factor;
+            data[i+2] = data[i+2] + (gray - data[i+2]) * factor;
+        }
+    }
+    
+    // Sepia
+    if (image_data.sepia > 0) {
+        const factor = image_data.sepia / 100;
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i+1];
+            const b = data[i+2];
+            
+            const sr = r * 0.393 + g * 0.769 + b * 0.189;
+            const sg = r * 0.349 + g * 0.686 + b * 0.168;
+            const sb = r * 0.272 + g * 0.534 + b * 0.131;
+            
+            data[i] = Math.min(255, r + (sr - r) * factor);
+            data[i+1] = Math.min(255, g + (sg - g) * factor);
+            data[i+2] = Math.min(255, b + (sb - b) * factor);
+        }
+    }
+    
+    // Saturation
+    if (image_data.saturation !== 100) {
+        const factor = image_data.saturation / 100;
+        for (let i = 0; i < data.length; i += 4) {
+            const gray = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
+            data[i] = Math.min(255, gray + (data[i] - gray) * factor);
+            data[i+1] = Math.min(255, gray + (data[i+1] - gray) * factor);
+            data[i+2] = Math.min(255, gray + (data[i+2] - gray) * factor);
+        }
+    }
+    
+    // Apply the modified pixel data
+    tempCtx.putImageData(imageData, 0, 0);
+    
+    // Handle blur separately (can use CSS filter on temp canvas)
+    if (image_data.blur > 0) {
+        const blurValue = (image_data.blur / 100) * 10;
+        tempCtx.filter = `blur(${blurValue}px)`;
+        tempCtx.drawImage(tempCanvas, 0, 0);
+    }
+    
+    // Download
+    const link = document.createElement('a');
+    link.download = 'edited-image.png';
+    link.href = tempCanvas.toDataURL('image/png');
+    link.click();
+}
+
+
+// Add event listener
+save_image_btn.addEventListener("click", saveImage);
+
 // =================================================
 // ================= EVENT LISTENERS ===============
 // =================================================
