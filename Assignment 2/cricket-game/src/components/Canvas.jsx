@@ -1,6 +1,16 @@
 import { useRef, useEffect } from 'react'
 import useGameStore from '../stores/gameStore'
 
+const SHOT_ANGLES = {
+  'Wicket': null,   // no outgoing ball, batsman is out
+  '0':      null,   // dot ball, no shot played
+  '1':      10,     // slight angle upward
+  '2':      20,
+  '3':      35,
+  '4':      45,     // flat-ish drive
+  '6':      65,     // high in the air
+}
+
 function drawBatsman(ctx, x, y, batAngle, lastOutcome) {
     const highlight = lastOutcome === "4" || lastOutcome === "6";
 
@@ -88,10 +98,12 @@ function drawBowler(ctx, x, y, phase) {
     }
 }
 
-function drawScene(ctx, W, H, phase, ballPos, batAngle, lastOutcome) {
+function drawScene(ctx, W, H, phase, ballPos, batAngle, lastOutcome, shotPos = 0, shotAngle = null) {
     // pitch strip
     // const pitchX = W * 0.38, pitchW = W * 0.24, pitchY = H * 0.5, pitchH = H * 0.48;
 
+    ctx.fillStyle = "#023055";
+    ctx.fillRect(0, 0, W, H); // clear background
     const pitchX = W * 0.05, pitchW = W * 0.9, pitchY = H * 0.3, pitchH = H * 0.68;
     ctx.fillStyle = "#c8a96e";
     ctx.fillRect(pitchX, pitchY, pitchW, pitchH);
@@ -139,6 +151,24 @@ function drawScene(ctx, W, H, phase, ballPos, batAngle, lastOutcome) {
         ctx.lineWidth = 1;
         ctx.stroke();
     }
+
+    if (phase === "shot" && shotAngle !== null) {
+      const rad = (shotAngle * Math.PI) / 180
+      const startX = W * 0.30        // batsX
+      const startY = H * 0.8 - 30   // batsY - contact height
+      const dist = W * 1.2
+
+      const bx = startX + Math.cos(rad) * dist * shotPos
+      const by = startY - Math.sin(rad) * dist * shotPos
+
+      ctx.beginPath()
+      ctx.arc(bx, by, 7, 0, Math.PI * 2)
+      ctx.fillStyle = "#dc2626"
+      ctx.fill()
+      ctx.strokeStyle = "#7f1d1d"
+      ctx.lineWidth = 1
+      ctx.stroke()
+    }
 }
 
 const Canvas = () => {
@@ -149,6 +179,10 @@ const Canvas = () => {
   const isBowling = useRef(false)     // are we currently animating?
 
   const test_div = useRef(null)
+  const shotPosRef = useRef(0)
+  const shotAngleRef = useRef(null)
+
+  const batAngleRef = useRef(0)
 
   const { setSliderActive, phase, lastResult, setPhase, setLastResult, addBall } = useGameStore()
 
@@ -160,10 +194,18 @@ const Canvas = () => {
   }, [])
 
   useEffect(() => {
-    if (test_div.current) {
-      test_div.current.textContent = `phase: ${phase}, lastResult: ${lastResult}`
+    if (!lastResult) return
+    if(lastResult === 'Wicket' || lastResult === '0') {
+      // no outgoing ball for these
+      setPhase('idle')
+      return
     }
-  }, [phase, lastResult]) // Runs whenever these change
+    
+    shotAngleRef.current = SHOT_ANGLES[lastResult]
+    shotPosRef.current = 0
+    lastTsRef.current = null
+    animRef.current = requestAnimationFrame(animateShot)
+  }, [lastResult]) // Runs whenever these change
 
 
   const animate = (timestamp) => {
@@ -190,6 +232,27 @@ const Canvas = () => {
       setPhase('slider')
       setSliderActive(true)
       test_div.current.textContent = `phase: ${phase}, lastResult: ${lastResult}`
+    }
+  }
+
+  const animateShot = (timestamp) => {
+    if (!lastTsRef.current) lastTsRef.current = timestamp
+    const dt = timestamp - lastTsRef.current
+    lastTsRef.current = timestamp
+
+    shotPosRef.current = Math.min(1, shotPosRef.current + dt * 0.0015)
+
+    const ctx = canvasRef.current.getContext('2d')
+    drawScene(ctx, 500, 300, "shot", 0, batAngleRef.current, lastResult, shotPosRef.current, shotAngleRef.current)
+
+    if (shotPosRef.current < 1) {
+      animRef.current = requestAnimationFrame(animateShot)
+    } else {
+      // ball gone off canvas — go idle
+      shotPosRef.current = 0
+      shotAngleRef.current = null
+      setLastResult(null)
+      setPhase('idle')
     }
   }
 
@@ -226,12 +289,6 @@ return (
     >
       Bowl
     </button>
-    <div 
-      ref={test_div} 
-      className='absolute top-2 right-2 text-sm text-gray-300 bg-black/50 px-2 py-1 rounded'
-    >
-      Test Div
-    </div>
   </div>
 )
 }
