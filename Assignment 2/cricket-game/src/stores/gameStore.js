@@ -2,6 +2,17 @@ import { create } from 'zustand'
 
 const useGameStore = create((set) => ({
 
+  playerName: '',
+  totalOvers: 2,      // replaces the hardcoded constant
+  totalWickets: 2,    // replaces the hardcoded constant
+
+  setPlayerName: (name) => set({ playerName: name }),
+  setTotalOvers: (o) => set({ totalOvers: o }),
+  setTotalWickets: (w) => set({ totalWickets: w }),
+
+  gameStarted: false,
+  setGameStarted: (v) => set({ gameStarted: v }),
+
   // ── GAME FLOW ──────────────────────────────────────────
   phase: 'idle',          // 'idle' | 'bowling' | 'slider' | 'batting' | 'result' | 'gameover'
   setPhase: (p) => set({ phase: p }),

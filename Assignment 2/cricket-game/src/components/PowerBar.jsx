@@ -8,7 +8,17 @@ const SLIDER_SPEED = 0.007  // tune this to make slider faster/slower
 
 const PowerBar = () => {
   
-  const {battingStyle, sliderActive, setPhase, setLastResult, setCommentary, setSliderActive, addRuns, addWicket, addBall, wickets, ballsBowled} = useGameStore()
+  const battingStyle = useGameStore((state) => state.battingStyle)
+  const sliderActive = useGameStore((state) => state.sliderActive)
+  const setSliderActive = useGameStore((state) => state.setSliderActive)
+  const setPhase = useGameStore((state) => state.setPhase)
+  const setLastResult = useGameStore((state) => state.setLastResult)
+  const setCommentary = useGameStore((state) => state.setCommentary)
+  const addRuns = useGameStore((state) => state.addRuns)
+  const addWicket = useGameStore((state) => state.addWicket)
+  const addBall = useGameStore((state) => state.addBall)
+  const wickets = useGameStore((state) => state.wickets)
+  const ballsBowled = useGameStore((state) => state.ballsBowled)
 
   const [sliderPos, setSliderPos] = useState(0)  // local — only PowerBar needs this
 
@@ -16,6 +26,10 @@ const PowerBar = () => {
   const dirRef       = useRef(1)
   const animRef      = useRef(null)
   const lastTsRef    = useRef(null)
+
+  const totalOvers = useGameStore((state) => state.totalOvers)
+  const totalWickets = useGameStore((state) => state.totalWickets)
+  const totalBalls = totalOvers * 6
 
   // slider animation loop — only runs when sliderActive is true
   useEffect(() => {

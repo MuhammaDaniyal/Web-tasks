@@ -175,7 +175,11 @@ const Canvas = () => {
 
   const batAngleRef = useRef(0)
 
-  const { setSliderActive, phase, lastResult, setPhase, setLastResult, addBall } = useGameStore()
+  const setSliderActive = useGameStore((state) => state.setSliderActive)
+  const lastResult = useGameStore((state) => state.lastResult)
+  const setPhase = useGameStore((state) => state.setPhase)
+  const setLastResult = useGameStore((state) => state.setLastResult)
+  const addBall = useGameStore((state) => state.addBall)
 
   useEffect(() => {
     const canvas = canvasRef.current
