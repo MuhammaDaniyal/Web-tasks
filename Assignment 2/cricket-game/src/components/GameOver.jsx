@@ -1,12 +1,8 @@
-import React from 'react'
 import useGameStore from '../stores/gameStore'
 
 const GameOver = () => {
-  const phase       = useGameStore((state) => state.phase)
-  const runs        = useGameStore((state) => state.runs)
-  const wickets     = useGameStore((state) => state.wickets)
-  const ballsBowled = useGameStore((state) => state.ballsBowled)
-  const resetGame   = useGameStore((state) => state.resetGame)
+
+  const { phase, runs, wickets, ballsBowled, resetGame }  = useGameStore()
 
   if (phase !== 'gameover') return null  // renders nothing until game ends
 

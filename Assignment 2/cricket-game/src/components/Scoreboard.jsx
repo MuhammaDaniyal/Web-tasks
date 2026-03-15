@@ -3,9 +3,11 @@ import useGameStore from '../stores/gameStore'
 
 const Scoreboard = () => {
 
-    const runs = useGameStore((state) => state.runs)
-    const wickets = useGameStore((state) => state.wickets)
-    const ballsBowled = useGameStore((state) => state.ballsBowled)
+    // const runs = useGameStore((state) => state.runs)
+    // const wickets = useGameStore((state) => state.wickets)
+    // const ballsBowled = useGameStore((state) => state.ballsBowled)
+
+    const { runs, wickets, ballsBowled } = useGameStore()
 
   return (
     <div>

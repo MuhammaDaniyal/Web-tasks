@@ -1,3 +1,6 @@
+const TOTAL_BALLS   = 12
+const TOTAL_WICKETS = 2
+
 const STYLES = {
     aggressive: {
         label: "Aggressive",
@@ -38,4 +41,29 @@ const COMMENTARY = {
     "6": ["SIX! Into the stands!", "MAXIMUM! What a shot!", "That's gone all the way — six!"],
 };
 
-export {COMMENTARY, STYLES}
+const SHOT_ANGLES = {
+  'Wicket': null,   // no outgoing ball, batsman is out
+  '0':      null,   // dot ball, no shot played
+  '1':      10,     // slight angle upward
+  '2':      20,
+  '3':      35,
+  '4':      45,     // flat-ish drive
+  '6':      65,     // high in the air
+}
+
+const OPTIONS = [
+  {
+    key: 'aggressive',
+    label: '⚡ Aggressive',
+    sub: 'High risk / High reward',
+    color: '#ef4444',
+  },
+  {
+    key: 'defensive',
+    label: '🛡 Defensive',
+    sub: 'Low risk / Low reward',
+    color: '#22c55e',
+  },
+]
+
+export { COMMENTARY, STYLES, SHOT_ANGLES, OPTIONS, TOTAL_BALLS, TOTAL_WICKETS }

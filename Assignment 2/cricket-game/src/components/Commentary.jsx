@@ -12,8 +12,10 @@ const RESULT_COLORS = {
 }
 
 const Commentary = () => {
-  const commentary = useGameStore((state) => state.commentary)
-  const lastResult = useGameStore((state) => state.lastResult)
+  // const commentary = useGameStore((state) => state.commentary)
+  // const lastResult = useGameStore((state) => state.lastResult)
+
+  const { commentary, lastResult } = useGameStore()
 
   const color = lastResult ? (RESULT_COLORS[lastResult] || '#e5e7eb') : '#e5e7eb'
 

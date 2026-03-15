@@ -1,20 +1,6 @@
 import React from 'react'
 import useGameStore from '../stores/gameStore'
-
-const OPTIONS = [
-  {
-    key: 'aggressive',
-    label: '⚡ Aggressive',
-    sub: 'High risk / High reward',
-    color: '#ef4444',
-  },
-  {
-    key: 'defensive',
-    label: '🛡 Defensive',
-    sub: 'Low risk / Low reward',
-    color: '#22c55e',
-  },
-]
+import { OPTIONS } from '../constants/constants'
 
 const StyleSelector = () => {
   const battingStyle    = useGameStore((state) => state.battingStyle)
