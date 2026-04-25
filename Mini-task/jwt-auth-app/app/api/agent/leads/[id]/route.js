@@ -50,6 +50,6 @@ export async function PUT(request, { params }) {
     });
   }
 
-  const updated = await Lead.findByIdAndUpdate(id, updates, { new: true });
+  const updated = await Lead.findByIdAndUpdate(id, updates, { returnDocument: "after" });
   return NextResponse.json({ lead: updated });
 }

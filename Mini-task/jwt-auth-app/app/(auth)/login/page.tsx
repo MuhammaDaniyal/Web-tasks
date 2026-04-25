@@ -24,7 +24,8 @@ export default function LoginPage() {
     if (!res.ok) {
       setError(data.error || "Login failed");
     } else {
-      router.push("/agent");
+      if (data.role === "admin") router.push("/admin");
+      else router.push("/agent");
     }
   };
 

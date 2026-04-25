@@ -10,7 +10,6 @@ export default function AgentDashboard() {
 
   useEffect(() => {
     fetchLeads();
-    // Polling every 30 seconds
     const interval = setInterval(fetchLeads, 30000);
     return () => clearInterval(interval);
   }, [filter]);

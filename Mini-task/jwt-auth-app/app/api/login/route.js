@@ -37,7 +37,7 @@ export async function POST(req) {
         { expiresIn: "7d" } // 1h is too short for development
         );
 
-        const response = NextResponse.json({ message: "Login successful" });
+        const response = NextResponse.json({ message: "Login successful", role: user.role });
 
         // 4. Set token in HTTP-only cookie
         response.cookies.set("token", token, {

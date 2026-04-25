@@ -7,15 +7,14 @@ import User from "@/models/User";
 
 export async function GET(request, { params }) {
   const user = await getTokenData();
-  if (!user || user.role !== "agent") {
+  if (!user || user.role !== "admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   await connectToDatabase();
-
-  // Make sure this lead belongs to this agent
   const { id } = await params;
-  const lead = await Lead.findOne({ _id: id, assignedTo: user.id });
+
+  const lead = await Lead.findById(id);
   if (!lead) return NextResponse.json({ error: "Lead not found" }, { status: 404 });
 
   const activities = await Activity.find({ leadId: id })
