@@ -32,9 +32,9 @@ export async function POST(req) {
         // though you MUST configure this in production!
         const secret = process.env.JWT_SECRET || "default_jwt_secret";
         const token = jwt.sign(
-        { id: user._id, name: user.name, role: user.role }, // add role here
-        secret,
-        { expiresIn: "7d" } // 1h is too short for development
+            { id: user._id, name: user.name, role: user.role }, // add role here
+            secret,
+            { expiresIn: "7d" }
         );
 
         const response = NextResponse.json({ message: "Login successful", role: user.role });

@@ -13,8 +13,13 @@ export default function LeadDetail() {
   const [emailForm, setEmailForm] = useState({ subject: "", message: "", target: "lead" });
 
   useEffect(() => {
-    fetchLead();
-    fetchActivities();
+    const loadData = () => {
+      fetchLead();
+      fetchActivities();
+    };
+    loadData();
+    const interval = setInterval(loadData, 30000); // Auto-refresh every 30s
+    return () => clearInterval(interval);
   }, []);
 
   async function fetchLead() {

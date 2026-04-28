@@ -19,6 +19,7 @@ const adminLinks = [
   { href: "/admin",        label: "Dashboard", icon: <ChartIcon /> },
   { href: "/admin/leads",  label: "Leads",     icon: <LeadsIcon /> },
   { href: "/admin/agents", label: "Agents",    icon: <AgentsIcon /> },
+  { href: "/admin/activities", label: "Activities", icon: <ChartIcon /> },
 ];
 
 const agentLinks = [

@@ -8,7 +8,6 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serves index.html when you open http://localhost:3000
 app.use(express.static(path.join(__dirname)));
 
 app.use(session({
@@ -17,14 +16,11 @@ app.use(session({
   saveUninitialized: false
 }));
 
-// ── AUTH MIDDLEWARE ─────────────────────────────────
 function isLoggedIn(req, res, next) {
   if (req.session.user) return next();
   res.status(401).send('❌ Not logged in. Please POST to /login first.');
 }
 
-// ── STEP 1: SEE ALL USERS (just to confirm DB is working) ──
-// Open this in your browser: http://localhost:3000/users
 app.get('/users', async (req, res) => {
   // We read directly from Mongoose using the same model inside User.js
   const UserModel = mongoose.model('Login');
@@ -32,9 +28,6 @@ app.get('/users', async (req, res) => {
   res.json(allUsers);
 });
 
-// ── REGISTER ────────────────────────────────────────
-// POST http://localhost:3000/register
-// Body: { "username": "john", "password": "1234" }
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password)
@@ -49,9 +42,6 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// ── LOGIN ────────────────────────────────────────────
-// POST http://localhost:3000/login
-// Body: { "username": "admin", "password": "password123" }
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password)
@@ -67,19 +57,16 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// ── DASHBOARD (protected) ────────────────────────────
 app.get('/dashboard', isLoggedIn, (req, res) => {
   res.json({ message: `Welcome ${req.session.user}` });
 });
 
-// ── LOGOUT ───────────────────────────────────────────
 app.get('/logout', (req, res) => {
   req.session.destroy(() => {
     res.json({ message: 'Logout successful' });
   });
 });
 
-// ── START ────────────────────────────────────────────
 app.listen(3000, () => {
   console.log('🚀 Server running!');
   console.log('👉 Open in browser: http://localhost:3000');

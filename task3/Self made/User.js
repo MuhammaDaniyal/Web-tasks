@@ -1,10 +1,5 @@
 const mongoose = require('mongoose');
 
-// "logins" here matches your collection called "login" in Compass
-// Mongoose automatically looks for the plural lowercase version
-// So mongoose.model('Login', ...) => looks for "logins" collection
-// We force the exact name "login" using the 3rd argument below
-
 const userSchema = new mongoose.Schema({
   username: String,
   password: String

@@ -8,8 +8,10 @@ export default function AdminLeads() {
   const [leads, setLeads] = useState([]);
   const [agents, setAgents] = useState([]);
   const [filter, setFilter] = useState({ status: "", priority: "" });
+  const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -23,6 +25,8 @@ export default function AdminLeads() {
   useEffect(() => {
     fetchLeads();
     fetch("/api/admin/agents").then(r => r.json()).then(d => setAgents(d.agents || []));
+    const interval = setInterval(fetchLeads, 30000); // Auto-refresh every 30s
+    return () => clearInterval(interval);
   }, [filter]);
 
   async function fetchLeads() {
@@ -77,6 +81,29 @@ export default function AdminLeads() {
     fetchLeads();
   }
 
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const res = await fetch("/api/admin/leads/export");
+      if (!res.ok) throw new Error("Export failed");
+      
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `leads-${new Date().toISOString().split("T")[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Failed to export leads");
+    } finally {
+      setExporting(false);
+    }
+  }
+
   const priorityBadge = {
     High: "bg-red-500/10 text-red-400",
     Medium: "bg-amber-500/10 text-amber-400",
@@ -91,6 +118,21 @@ export default function AdminLeads() {
     Lost: "bg-red-500/10 text-red-400",
   };
 
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredLeads = leads.filter(lead => {
+    if (!normalizedSearch) return true;
+    const name = (lead.name || "").toLowerCase();
+    const email = (lead.email || "").toLowerCase();
+    const phone = String(lead.phone || "").toLowerCase();
+    const interest = (lead.propertyInterest || "").toLowerCase();
+    return (
+      name.includes(normalizedSearch) ||
+      email.includes(normalizedSearch) ||
+      phone.includes(normalizedSearch) ||
+      interest.includes(normalizedSearch)
+    );
+  });
+
   return (
     <div className="min-h-screen bg-[#0B0B0C] p-6">
       <div className="flex items-center justify-between mb-6">
@@ -98,15 +140,31 @@ export default function AdminLeads() {
           <h1 className="text-lg font-semibold text-[#F5F5F5]">All Leads</h1>
           <p className="text-xs text-[#A1A1AA]">Track, assign, and manage every lead</p>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg transition-colors duration-200"
-        >
-          + New Lead
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="bg-green-500 hover:bg-green-600 disabled:opacity-60 text-white text-sm px-4 py-2 rounded-lg transition-colors duration-200"
+          >
+            {exporting ? "Exporting..." : "📊 Export"}
+          </button>
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg transition-colors duration-200"
+          >
+            + New Lead
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-4 mb-6">
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search by name or phone..."
+          className="bg-[#1A1A1D] border border-[#2A2A2E] rounded-lg px-3 py-2 text-sm text-[#F5F5F5] focus:outline-none focus:ring-1 focus:ring-indigo-500 min-w-60"
+        />
         <select
           value={filter.status}
           onChange={e => setFilter({ ...filter, status: e.target.value })}
@@ -125,7 +183,10 @@ export default function AdminLeads() {
         </select>
         <button
           type="button"
-          onClick={() => setFilter({ status: "", priority: "" })}
+          onClick={() => {
+            setFilter({ status: "", priority: "" });
+            setSearch("");
+          }}
           className="border border-[#2A2A2E] hover:bg-[#1A1A1D] text-[#A1A1AA] text-sm px-4 py-2 rounded-lg transition-colors duration-200"
         >
           Clear
@@ -214,7 +275,7 @@ export default function AdminLeads() {
               </tr>
             </thead>
             <tbody>
-              {leads.map(lead => (
+              {filteredLeads.map(lead => (
                 <tr key={lead._id} className="border-b border-[#2A2A2E] last:border-0 hover:bg-[#1A1A1D]">
                   <td className="px-4 py-3 align-top">
                     <button
@@ -225,16 +286,6 @@ export default function AdminLeads() {
                       <p className="text-sm text-[#F5F5F5] font-medium hover:text-indigo-400 transition-colors duration-200">{lead.name}</p>
                       <p className="text-xs text-[#A1A1AA] mb-2">{lead.propertyInterest}</p>
                     </button>
-                    {lead.phone && (
-                      <a
-                        href={`https://wa.me/${lead.phone}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-xs text-green-400 hover:text-green-300 transition-colors duration-200"
-                      >
-                        WhatsApp
-                      </a>
-                    )}
                   </td>
                   <td className="px-4 py-3 text-[#F5F5F5] align-top">Rs. {lead.budget?.toLocaleString()}</td>
                   <td className="px-4 py-3 align-top">
@@ -271,7 +322,7 @@ export default function AdminLeads() {
                   </td>
                 </tr>
               ))}
-              {leads.length === 0 && (
+              {filteredLeads.length === 0 && (
                 <tr>
                   <td colSpan={7} className="text-center py-16 text-[#A1A1AA] text-sm">No leads found.</td>
                 </tr>

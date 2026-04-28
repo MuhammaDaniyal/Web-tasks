@@ -6,8 +6,9 @@ import User from "@/models/User";
 export async function POST(req) {
     try {
         console.log("[sign up] Api req started")
-        const { username, email, password } = await req.json();
+        const { username, email, password, role } = await req.json();
         const name = username?.trim();
+        const normalizedRole = role === "owner" ? "owner" : "employee";
 
         // Validate inputs
         if (!name || !password || !email) {
@@ -54,7 +55,7 @@ export async function POST(req) {
             name,
             email: email,
             password: hashedPassword,
-            role: "agent"
+            role: normalizedRole
         });
 
         // Save to database

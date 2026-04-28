@@ -29,10 +29,18 @@ export default function AdminLeadDetail() {
   const [msg, setMsg] = useState("");
   const [emailModal, setEmailModal] = useState(false);
   const [emailForm, setEmailForm] = useState({ subject: "", message: "", target: "lead" });
+  const [aiSuggestion, setAiSuggestion] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
 
   useEffect(() => {
-    fetchAll();
-    fetch("/api/admin/agents").then(r => r.json()).then(d => setAgents(d.agents || []));
+    const loadData = () => {
+      fetchAll();
+      fetch("/api/admin/agents").then(r => r.json()).then(d => setAgents(d.agents || []));
+    };
+    loadData();
+    const interval = setInterval(fetchAll, 30000); // Auto-refresh every 30s
+    return () => clearInterval(interval);
   }, []);
 
   async function fetchAll() {
@@ -123,6 +131,35 @@ export default function AdminLeadDetail() {
       setMsg(error.error || "Failed to send email");
     }
     setSaving(false);
+  }
+
+  async function handleGetSuggestion() {
+    setAiLoading(true);
+    setAiError("");
+
+    try {
+      const res = await fetch(`/api/admin/leads/${id}/ai-suggestion`, {
+        method: "POST",
+      });
+
+      if (res.status === 401) {
+        router.push("/login");
+        return;
+      }
+
+      const data = await res.json();
+      if (!res.ok) {
+        setAiError(data.error || "Failed to generate suggestion");
+        return;
+      }
+
+      setAiSuggestion(data.suggestion || "");
+    } catch (error) {
+      console.error("Failed to get AI suggestion:", error);
+      setAiError("Failed to generate suggestion");
+    } finally {
+      setAiLoading(false);
+    }
   }
 
   function flash(message) {
@@ -310,6 +347,34 @@ export default function AdminLeadDetail() {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="mt-6 bg-[#111113] border border-[#2A2A2E] rounded-2xl p-5 space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-medium text-[#F5F5F5]">AI Follow-up Suggestion</h2>
+          <button
+            type="button"
+            onClick={handleGetSuggestion}
+            disabled={aiLoading}
+            className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-60"
+          >
+            {aiLoading ? "Generating..." : "Get Suggestion"}
+          </button>
+        </div>
+
+        {aiError && (
+          <p className="text-sm text-red-400">{aiError}</p>
+        )}
+
+        {aiSuggestion && (
+          <div className="bg-[#1A1A1D] border border-[#2A2A2E] rounded-lg p-4">
+            <p className="text-sm text-[#F5F5F5] whitespace-pre-wrap leading-6">{aiSuggestion}</p>
+          </div>
+        )}
+
+        {!aiSuggestion && !aiError && (
+          <p className="text-xs text-[#A1A1AA]">Generate a contextual next-step suggestion based on this lead's profile and notes.</p>
+        )}
       </div>
 
       {emailModal && (

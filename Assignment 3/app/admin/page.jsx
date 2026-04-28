@@ -8,10 +8,15 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin/analytics")
-      .then(r => { if (r.status === 401) { router.push("/login"); return null; } return r.json(); })
-      .then(d => { if (d) { setData(d); setLoading(false); } });
-  }, []);
+    const fetchData = () => {
+      fetch("/api/admin/analytics")
+        .then(r => { if (r.status === 401) { router.push("/login"); return null; } return r.json(); })
+        .then(d => { if (d) { setData(d); setLoading(false); } });
+    };
+    fetchData();
+    const interval = setInterval(fetchData, 30000); // Auto-refresh every 30s
+    return () => clearInterval(interval);
+  }, [router]);
 
   function logout() {
     document.cookie = "token=; Max-Age=0; path=/";
